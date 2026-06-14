@@ -1,73 +1,181 @@
-# React + TypeScript + Vite
+# つみつみ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 概要
 
-Currently, two official plugins are available:
+つみつみは、貯金目標や支出を記録し、目標達成までの進捗を可視化するWebアプリケーションです。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+旅行・ライブ・欲しいものなど、具体的な目標に向けて「今どのくらい貯まっているのか」「あとどのくらい必要なのか」を分かりやすく表示し、継続的な貯金をサポートすることを目的としています。
 
-## React Compiler
+## 主な機能
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* 貯金目標の登録
+* 貯金額の記録
+* 支出の記録
+* 目標達成率の表示
+* 進捗状況の可視化
 
-## Expanding the ESLint configuration
+## 使用技術
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+* React
+* TypeScript
+* Vite
+* Git / GitHub
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 開発環境の準備
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+このプロジェクトを動かすには、Node.js が必要です。
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Node.js が入っているか確認するには、ターミナルで以下を実行してください。
+
+```bash
+node -v
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+npm が入っているか確認するには、以下を実行してください。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm -v
 ```
+
+バージョン番号が表示されれば準備完了です。
+
+## セットアップ方法
+
+初めてこのプロジェクトを使うときは、以下のコマンドを実行してください。
+
+```bash
+npm install
+```
+
+これは、アプリを動かすために必要なパッケージをインストールするコマンドです。
+
+## 起動方法
+
+開発用サーバーを起動します。
+
+```bash
+npm run dev
+```
+
+実行後、ターミナルに表示されるURLをブラウザで開いてください。
+
+通常は以下のようなURLが表示されます。
+
+```txt
+http://localhost:5173/
+```
+
+## 基本的な開発の流れ
+
+作業を始める前に、まず `develop` ブランチを最新の状態にします。
+
+```bash
+git checkout develop
+git pull origin develop
+```
+
+次に、自分の作業用ブランチを作成します。
+
+```bash
+git checkout -b feature/作業内容
+```
+
+例：
+
+```bash
+git checkout -b feature/home-screen
+```
+
+作業が終わったら、変更内容を確認します。
+
+```bash
+git status
+```
+
+変更したファイルを追加します。
+
+```bash
+git add .
+```
+
+コミットします。
+
+```bash
+git commit -m "変更内容を簡潔に書く（詳しくは下記のコミットメッセージの例を参照）"
+```
+
+GitHubにプッシュします。
+
+```bash
+git push -u origin ブランチ名
+```
+
+その後、GitHub上でPull Requestを作成します。
+
+## ブランチ運用
+
+このプロジェクトでは、以下のようにブランチを使い分けます。
+
+* `main`：完成版・提出用のブランチ
+* `develop`：開発の基準となるブランチ
+* `feature/○○`：機能追加用のブランチ
+* `docs/○○`：READMEや設計書など、ドキュメント修正用のブランチ
+* `fix/○○`：不具合修正用のブランチ
+
+例：
+
+```txt
+feature/home-screen
+feature/add-goal
+docs/update-readme
+fix/calc-progress
+```
+
+## コミットメッセージの例
+
+コミットメッセージは、何をしたか分かるように書きます。
+
+例：
+
+```txt
+READMEを更新
+ホーム画面を作成
+目標追加フォームを作成
+達成率の計算処理を追加
+```
+
+必要に応じて、以下のように種類を付けてもよい。というかこっちを推奨。
+
+```txt
+追加: ホーム画面を作成
+修正: 達成率の計算ミスを修正
+更新: READMEを更新
+環境構築: React・TypeScriptを導入
+```
+
+## Pull Requestについて
+
+作業が終わったら、直接 `develop` に反映せず、Pull Requestを作成します。
+
+Pull Requestには、以下の内容を書くと分かりやすいです。
+
+```md
+## 概要
+変更内容を簡単に書く
+
+## 変更内容
+- 変更したこと
+- 追加したこと
+- 修正したこと
+
+## 動作確認
+- 確認した内容を書く
+```
+
+## 注意点
+
+* `main` や `develop` に直接コミットしない
+* 作業前に必ず `develop` を最新にする
+* 1つのブランチでは、なるべく1つの作業だけを行う
+* 変更内容が大きくなりすぎる前にPull Requestを作成する
+* 分からない場合は、無理に進めずチーム内で確認する
