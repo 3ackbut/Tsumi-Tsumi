@@ -14,11 +14,11 @@ function Home() {
     (schedule) => schedule.date === today,
   );
   const incompleteTasks = tasks.filter((task) => !task.completed);
-  const priorityLoad = incompleteTasks.reduce(
-    (total, task) => total + task.priority * 8 + task.estimatedMinutes / 12,
+  const importanceLoad = incompleteTasks.reduce(
+    (total, task) => total + task.importance * 8 + task.estimatedMinutes / 12,
     0,
   );
-  const tsumido = Math.min(100, Math.round(25 + priorityLoad));
+  const tsumido = Math.min(100, Math.round(25 + importanceLoad));
 
   return (
     <main className="page">

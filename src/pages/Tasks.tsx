@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
 import type { Task } from "../types/task";
+import { judgeAutoPriority } from "../utils/taskPriority";
 
 function Tasks() {
   const {
     tasks,
+    diagnosisResult,
     addTask,
     updateTask,
     deleteTask,
@@ -14,7 +16,7 @@ function Tasks() {
   const [name, setName] = useState("");
   const [deadline, setDeadline] = useState("");
   const [estimatedMinutes, setEstimatedMinutes] = useState(30);
-  const [priority, setPriority] = useState(3);
+  const [importance, setImportance] = useState(3);
   const [errorMessage, setErrorMessage] = useState("");
   const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
 
@@ -22,7 +24,7 @@ function Tasks() {
     setName("");
     setDeadline("");
     setEstimatedMinutes(30);
-    setPriority(3);
+    setImportance(3);
     setErrorMessage("");
     setEditingTaskIndex(null);
   };
@@ -37,7 +39,7 @@ function Tasks() {
       name: name.trim(),
       deadline,
       estimatedMinutes,
-      priority,
+      importance,
       completed:
         editingTaskIndex === null ? false : tasks[editingTaskIndex].completed,
     };
@@ -56,7 +58,7 @@ function Tasks() {
     setName(task.name);
     setDeadline(task.deadline);
     setEstimatedMinutes(task.estimatedMinutes);
-    setPriority(task.priority);
+    setImportance(task.importance);
     setEditingTaskIndex(index);
     setErrorMessage("");
   };
@@ -73,7 +75,7 @@ function Tasks() {
           <p className="eyebrow">Tasks</p>
           <h1>タスク確認</h1>
           <p className="lead">
-            タスクの追加、削除、完了状態の切り替えを行えます。
+            重要度と診断結果をもとに、TsumiTsumiが優先度を自動判定します。
           </p>
         </div>
         <Link className="text-link" to="/">
@@ -122,13 +124,15 @@ function Tasks() {
           </label>
 
           <label>
-            <span>優先度（1-5）</span>
+            <span>重要度（1-5）</span>
             <input
               type="number"
               min="1"
               max="5"
-              value={priority}
-              onInput={(event) => setPriority(Number(event.currentTarget.value))}
+              value={importance}
+              onInput={(event) =>
+                setImportance(Number(event.currentTarget.value))
+              }
             />
           </label>
         </div>
@@ -160,48 +164,59 @@ function Tasks() {
           <p>タスクはありません。</p>
         ) : (
           <ul className="task-list">
-            {tasks.map((task, index) => (
-              <li
-                className={task.completed ? "task-item is-completed" : "task-item"}
-                key={`${task.name}-${task.deadline}-${index}`}
-              >
-                <div className="task-main">
-                  <button
-                    className="check-button"
-                    type="button"
-                    onClick={() => toggleTaskCompleted(index)}
-                    aria-label={`${task.name}の完了状態を切り替える`}
-                  >
-                    {task.completed ? "✓" : ""}
-                  </button>
-                  <div>
-                    <strong>{task.name}</strong>
-                    <p>
-                      締切: {task.deadline} / 見積: {task.estimatedMinutes}分 /
-                      優先度: {task.priority}
-                    </p>
+            {tasks.map((task, index) => {
+              const autoPriority = judgeAutoPriority(task, diagnosisResult);
+
+              return (
+                <li
+                  className={
+                    task.completed ? "task-item is-completed" : "task-item"
+                  }
+                  key={`${task.name}-${task.deadline}-${index}`}
+                >
+                  <div className="task-main">
+                    <button
+                      className="check-button"
+                      type="button"
+                      onClick={() => toggleTaskCompleted(index)}
+                      aria-label={`${task.name}の完了状態を切り替える`}
+                    >
+                      {task.completed ? "✓" : ""}
+                    </button>
+                    <div>
+                      <strong>{task.name}</strong>
+                      <p>
+                        締切: {task.deadline} / 見積: {task.estimatedMinutes}分 /
+                        重要度: {task.importance}
+                      </p>
+                      <div className="auto-priority-box">
+                        <span>TsumiTsumi判定</span>
+                        <strong>優先度: {autoPriority.level}</strong>
+                        <p>理由: {autoPriority.reason}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="task-actions">
-                  <button
-                    type="button"
-                    onClick={() => toggleTaskCompleted(index)}
-                  >
-                    {task.completed ? "未完了に戻す" : "完了にする"}
-                  </button>
-                  <button type="button" onClick={() => startEditTask(index)}>
-                    編集
-                  </button>
-                  <button
-                    className="danger-button"
-                    type="button"
-                    onClick={() => handleDeleteTask(index)}
-                  >
-                    削除
-                  </button>
-                </div>
-              </li>
-            ))}
+                  <div className="task-actions">
+                    <button
+                      type="button"
+                      onClick={() => toggleTaskCompleted(index)}
+                    >
+                      {task.completed ? "未完了に戻す" : "完了にする"}
+                    </button>
+                    <button type="button" onClick={() => startEditTask(index)}>
+                      編集
+                    </button>
+                    <button
+                      className="danger-button"
+                      type="button"
+                      onClick={() => handleDeleteTask(index)}
+                    >
+                      削除
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

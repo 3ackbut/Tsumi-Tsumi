@@ -27,6 +27,28 @@ function loadStoredData<T>(key: string, fallback: T[]): T[] {
   }
 }
 
+type StoredTask = Task & {
+  priority?: number;
+};
+
+function normalizeTask(task: StoredTask): Task {
+  const importance = task.importance ?? task.priority ?? 3;
+
+  return {
+    name: task.name,
+    deadline: task.deadline,
+    estimatedMinutes: task.estimatedMinutes,
+    importance,
+    completed: task.completed,
+  };
+}
+
+function loadStoredTasks() {
+  return loadStoredData<StoredTask>(TASKS_STORAGE_KEY, sampleTasks).map(
+    normalizeTask,
+  );
+}
+
 function loadStoredResult<T>(key: string): T | null {
   const storedValue = localStorage.getItem(key);
 
@@ -46,9 +68,7 @@ interface AppDataProviderProps {
 }
 
 export function AppDataProvider({ children }: AppDataProviderProps) {
-  const [tasks, setTasks] = useState<Task[]>(() =>
-    loadStoredData<Task>(TASKS_STORAGE_KEY, sampleTasks),
-  );
+  const [tasks, setTasks] = useState<Task[]>(loadStoredTasks);
   const [schedules, setSchedules] = useState<Schedule[]>(() =>
     loadStoredData<Schedule>(SCHEDULES_STORAGE_KEY, sampleSchedules),
   );
