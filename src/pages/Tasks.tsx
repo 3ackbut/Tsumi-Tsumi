@@ -2,7 +2,31 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
 import type { Task } from "../types/task";
-import { judgeAutoPriority } from "../utils/taskPriority";
+import {
+  judgeAutoPriority,
+  type AutoPriorityLevel,
+} from "../utils/taskPriority";
+
+type TaskTab = "incomplete" | "completed";
+
+interface DisplayTask {
+  task: Task;
+  index: number;
+  autoPriority: ReturnType<typeof judgeAutoPriority>;
+}
+
+const priorityOrder: Record<AutoPriorityLevel, number> = {
+  高: 0,
+  中: 1,
+  低: 2,
+};
+
+function compareDeadline(firstDeadline: string, secondDeadline: string) {
+  return (
+    new Date(`${firstDeadline}T00:00:00`).getTime() -
+    new Date(`${secondDeadline}T00:00:00`).getTime()
+  );
+}
 
 function Tasks() {
   const {
@@ -19,6 +43,33 @@ function Tasks() {
   const [importance, setImportance] = useState(3);
   const [errorMessage, setErrorMessage] = useState("");
   const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<TaskTab>("incomplete");
+  const incompleteTaskCount = tasks.filter((task) => !task.completed).length;
+  const completedTaskCount = tasks.length - incompleteTaskCount;
+  const displayTasks: DisplayTask[] = tasks
+    .map((task, index) => ({
+      task,
+      index,
+      autoPriority: judgeAutoPriority(task, diagnosisResult),
+    }))
+    .filter(({ task }) =>
+      activeTab === "incomplete" ? !task.completed : task.completed,
+    )
+    .sort((firstTask, secondTask) => {
+      if (activeTab === "completed") {
+        return compareDeadline(firstTask.task.deadline, secondTask.task.deadline);
+      }
+
+      const priorityDiff =
+        priorityOrder[firstTask.autoPriority.level] -
+        priorityOrder[secondTask.autoPriority.level];
+
+      if (priorityDiff !== 0) {
+        return priorityDiff;
+      }
+
+      return compareDeadline(firstTask.task.deadline, secondTask.task.deadline);
+    });
 
   const resetForm = () => {
     setName("");
@@ -157,16 +208,51 @@ function Tasks() {
             <p className="eyebrow">List</p>
             <h2>タスク一覧</h2>
           </div>
-          <span className="status-pill">{tasks.length}件</span>
+          <span className="status-pill">
+            {activeTab === "incomplete" ? incompleteTaskCount : completedTaskCount}
+            件
+          </span>
         </div>
 
-        {tasks.length === 0 ? (
-          <p>タスクはありません。</p>
+        <div className="tab-list" role="tablist" aria-label="タスク表示切り替え">
+          <button
+            className={activeTab === "incomplete" ? "tab-button is-active" : "tab-button"}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "incomplete"}
+            onClick={() => setActiveTab("incomplete")}
+          >
+            未完了タスク
+            <span>{incompleteTaskCount}</span>
+          </button>
+          <button
+            className={activeTab === "completed" ? "tab-button is-active" : "tab-button"}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "completed"}
+            onClick={() => setActiveTab("completed")}
+          >
+            完了タスク
+            <span>{completedTaskCount}</span>
+          </button>
+        </div>
+
+        {displayTasks.length === 0 ? (
+          <div className="empty-state">
+            <strong>
+              {activeTab === "incomplete"
+                ? "未完了タスクはありません。"
+                : "完了タスクはまだありません。"}
+            </strong>
+            <p>
+              {activeTab === "incomplete"
+                ? "新しいタスクを追加すると、TsumiTsumi判定の優先度順にここへ表示されます。"
+                : "タスクを完了にすると、ここで振り返れるようになります。"}
+            </p>
+          </div>
         ) : (
           <ul className="task-list">
-            {tasks.map((task, index) => {
-              const autoPriority = judgeAutoPriority(task, diagnosisResult);
-
+            {displayTasks.map(({ task, index, autoPriority }) => {
               return (
                 <li
                   className={
@@ -191,7 +277,14 @@ function Tasks() {
                       </p>
                       <div className="auto-priority-box">
                         <span>TsumiTsumi判定</span>
-                        <strong>優先度: {autoPriority.level}</strong>
+                        <strong>
+                          優先度:
+                          <span
+                            className={`priority-badge priority-${autoPriority.level}`}
+                          >
+                            {autoPriority.level}
+                          </span>
+                        </strong>
                         <p>理由: {autoPriority.reason}</p>
                       </div>
                     </div>

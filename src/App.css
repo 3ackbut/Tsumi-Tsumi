@@ -278,6 +278,53 @@ input:focus {
   gap: 10px;
 }
 
+.tab-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 6px;
+  background: #f1f4f8;
+  border: 1px solid #e4e8ef;
+  border-radius: 999px;
+}
+
+.tab-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  color: #3c4350;
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.tab-button.is-active {
+  color: #ffffff;
+  background: #2f6b3f;
+  box-shadow: 0 8px 18px rgba(47, 107, 63, 0.18);
+}
+
+.tab-button span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
+
+.tab-button:not(.is-active) span {
+  background: #ffffff;
+}
+
 .task-list {
   margin-top: 20px;
 }
@@ -337,6 +384,10 @@ input:focus {
 }
 
 .auto-priority-box strong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   color: #151923;
   font-size: 16px;
   text-decoration: none;
@@ -345,6 +396,52 @@ input:focus {
 .auto-priority-box p {
   margin: 0;
   color: #3c4350;
+}
+
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.priority-高 {
+  color: #8f2d2d;
+  background: #f8e7e7;
+}
+
+.priority-中 {
+  color: #77510b;
+  background: #fff1c7;
+}
+
+.priority-低 {
+  color: #2f5f3c;
+  background: #eef7f0;
+}
+
+.empty-state {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 20px;
+  color: #3c4350;
+  background: #f8fafc;
+  border: 1px dashed #cfd6e3;
+  border-radius: 8px;
+}
+
+.empty-state strong {
+  color: #151923;
+  font-size: 18px;
+}
+
+.empty-state p {
+  color: #687182;
+  line-height: 1.7;
 }
 
 .check-button {
@@ -565,8 +662,13 @@ input:focus {
 
   .task-actions button,
   .primary-button,
-  .choice-button {
+  .choice-button,
+  .tab-button {
     width: 100%;
+  }
+
+  .tab-list {
+    border-radius: 8px;
   }
 
   .compact-list li {
