@@ -1,52 +1,69 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { sampleTasks } from "../data/sampleData";
+import { useAppData } from "../hooks/useAppData";
 import type { Task } from "../types/task";
 
 function Tasks() {
-  const [tasks, setTasks] = useState<Task[]>(sampleTasks);
+  const {
+    tasks,
+    addTask,
+    updateTask,
+    deleteTask,
+    toggleTaskCompleted,
+  } = useAppData();
   const [name, setName] = useState("");
   const [deadline, setDeadline] = useState("");
   const [estimatedMinutes, setEstimatedMinutes] = useState(30);
   const [priority, setPriority] = useState(3);
   const [errorMessage, setErrorMessage] = useState("");
+  const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
 
-  const addTask = () => {
-    if (name.trim() === "" || deadline === "") {
-      setErrorMessage("タスク名と締切を入力してください。");
-      return;
-    }
-
-    const newTask: Task = {
-      name: name.trim(),
-      deadline,
-      estimatedMinutes,
-      priority,
-      completed: false,
-    };
-
-    setTasks((currentTasks) => [...currentTasks, newTask]);
+  const resetForm = () => {
     setName("");
     setDeadline("");
     setEstimatedMinutes(30);
     setPriority(3);
     setErrorMessage("");
+    setEditingTaskIndex(null);
   };
 
-  const deleteTask = (targetIndex: number) => {
-    setTasks((currentTasks) =>
-      currentTasks.filter((_, index) => index !== targetIndex),
-    );
+  const saveTask = () => {
+    if (name.trim() === "" || deadline === "") {
+      setErrorMessage("タスク名と締切を入力してください。");
+      return;
+    }
+
+    const task: Task = {
+      name: name.trim(),
+      deadline,
+      estimatedMinutes,
+      priority,
+      completed:
+        editingTaskIndex === null ? false : tasks[editingTaskIndex].completed,
+    };
+
+    if (editingTaskIndex === null) {
+      addTask(task);
+    } else {
+      updateTask(editingTaskIndex, task);
+    }
+
+    resetForm();
   };
 
-  const toggleCompleted = (targetIndex: number) => {
-    setTasks((currentTasks) =>
-      currentTasks.map((task, index) =>
-        index === targetIndex
-          ? { ...task, completed: !task.completed }
-          : task,
-      ),
-    );
+  const startEditTask = (index: number) => {
+    const task = tasks[index];
+    setName(task.name);
+    setDeadline(task.deadline);
+    setEstimatedMinutes(task.estimatedMinutes);
+    setPriority(task.priority);
+    setEditingTaskIndex(index);
+    setErrorMessage("");
+  };
+
+  const handleDeleteTask = (index: number) => {
+    deleteTask(index);
+    resetForm();
   };
 
   return (
@@ -68,7 +85,7 @@ function Tasks() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Add</p>
-            <h2>タスク追加</h2>
+            <h2>{editingTaskIndex === null ? "タスク追加" : "タスク編集"}</h2>
           </div>
         </div>
 
@@ -118,9 +135,16 @@ function Tasks() {
 
         {errorMessage !== "" && <p className="error-text">{errorMessage}</p>}
 
-        <button className="primary-button" type="button" onClick={addTask}>
-          タスク追加
-        </button>
+        <div className="form-actions">
+          <button className="primary-button" type="button" onClick={saveTask}>
+            {editingTaskIndex === null ? "タスク追加" : "変更を保存"}
+          </button>
+          {editingTaskIndex !== null && (
+            <button className="secondary-button" type="button" onClick={resetForm}>
+              キャンセル
+            </button>
+          )}
+        </div>
       </section>
 
       <section className="panel">
@@ -145,7 +169,7 @@ function Tasks() {
                   <button
                     className="check-button"
                     type="button"
-                    onClick={() => toggleCompleted(index)}
+                    onClick={() => toggleTaskCompleted(index)}
                     aria-label={`${task.name}の完了状態を切り替える`}
                   >
                     {task.completed ? "✓" : ""}
@@ -159,13 +183,19 @@ function Tasks() {
                   </div>
                 </div>
                 <div className="task-actions">
-                  <button type="button" onClick={() => toggleCompleted(index)}>
+                  <button
+                    type="button"
+                    onClick={() => toggleTaskCompleted(index)}
+                  >
                     {task.completed ? "未完了に戻す" : "完了にする"}
+                  </button>
+                  <button type="button" onClick={() => startEditTask(index)}>
+                    編集
                   </button>
                   <button
                     className="danger-button"
                     type="button"
-                    onClick={() => deleteTask(index)}
+                    onClick={() => handleDeleteTask(index)}
                   >
                     削除
                   </button>

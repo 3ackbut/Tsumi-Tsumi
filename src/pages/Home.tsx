@@ -1,14 +1,19 @@
 import "../App.css";
 import { Link } from "react-router-dom";
-import { sampleSchedules, sampleTasks } from "../data/sampleData";
+import { useAppData } from "../hooks/useAppData";
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString("sv-SE");
+}
 
 function Home() {
-  const today = "2026-06-23";
-  const todayTasks = sampleTasks.filter((task) => task.deadline === today);
-  const todaySchedules = sampleSchedules.filter(
+  const { tasks, schedules } = useAppData();
+  const today = formatDate(new Date());
+  const todayTasks = tasks.filter((task) => task.deadline === today);
+  const todaySchedules = schedules.filter(
     (schedule) => schedule.date === today,
   );
-  const incompleteTasks = sampleTasks.filter((task) => !task.completed);
+  const incompleteTasks = tasks.filter((task) => !task.completed);
   const priorityLoad = incompleteTasks.reduce(
     (total, task) => total + task.priority * 8 + task.estimatedMinutes / 12,
     0,
@@ -31,7 +36,7 @@ function Home() {
             <p className="eyebrow">Today</p>
             <h2>今日の状況</h2>
           </div>
-          <span className="status-pill">サンプル表示</span>
+          <span className="status-pill">保存データ</span>
         </div>
 
         <div className="stats-grid">
@@ -52,28 +57,36 @@ function Home() {
         <div className="two-column">
           <div>
             <h3>今日のタスク</h3>
-            <ul className="compact-list">
-              {todayTasks.map((task) => (
-                <li key={task.name}>
-                  <span>{task.completed ? "完了" : "未完了"}</span>
-                  <strong>{task.name}</strong>
-                </li>
-              ))}
-            </ul>
+            {todayTasks.length === 0 ? (
+              <p className="muted-text">今日締切のタスクはありません。</p>
+            ) : (
+              <ul className="compact-list">
+                {todayTasks.map((task, index) => (
+                  <li key={`${task.name}-${task.deadline}-${index}`}>
+                    <span>{task.completed ? "完了" : "未完了"}</span>
+                    <strong>{task.name}</strong>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div>
             <h3>今日の予定</h3>
-            <ul className="compact-list">
-              {todaySchedules.map((schedule) => (
-                <li key={schedule.title}>
-                  <span>
-                    {schedule.startTime}-{schedule.endTime}
-                  </span>
-                  <strong>{schedule.title}</strong>
-                </li>
-              ))}
-            </ul>
+            {todaySchedules.length === 0 ? (
+              <p className="muted-text">今日の予定はありません。</p>
+            ) : (
+              <ul className="compact-list">
+                {todaySchedules.map((schedule, index) => (
+                  <li key={`${schedule.title}-${schedule.date}-${index}`}>
+                    <span>
+                      {schedule.startTime}-{schedule.endTime}
+                    </span>
+                    <strong>{schedule.title}</strong>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </section>
