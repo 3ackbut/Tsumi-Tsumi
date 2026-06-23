@@ -261,6 +261,11 @@ input:focus {
   background: #2f6b3f;
 }
 
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .secondary-button {
   margin-top: 18px;
   color: #2f3441;
@@ -463,6 +468,41 @@ input:focus {
   font-weight: 800;
 }
 
+.result-box-large {
+  gap: 18px;
+}
+
+.result-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.result-detail-grid div,
+.diagnosis-summary {
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #dbe7df;
+  border-radius: 8px;
+}
+
+.diagnosis-summary {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.diagnosis-summary strong {
+  color: #151923;
+  font-size: 24px;
+}
+
+.diagnosis-summary p,
+.result-detail-grid p {
+  color: #3c4350;
+  line-height: 1.7;
+}
+
 @media (max-width: 760px) {
   .page {
     padding: 24px 14px 36px;
@@ -478,7 +518,8 @@ input:focus {
   .menu-grid,
   .form-grid,
   .two-column,
-  .day-content {
+  .day-content,
+  .result-detail-grid {
     grid-template-columns: 1fr;
   }
 

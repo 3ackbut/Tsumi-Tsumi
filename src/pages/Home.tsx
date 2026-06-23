@@ -7,7 +7,7 @@ function formatDate(date: Date) {
 }
 
 function Home() {
-  const { tasks, schedules } = useAppData();
+  const { tasks, schedules, diagnosisResult } = useAppData();
   const today = formatDate(new Date());
   const todayTasks = tasks.filter((task) => task.deadline === today);
   const todaySchedules = schedules.filter(
@@ -89,6 +89,37 @@ function Home() {
             )}
           </div>
         </div>
+      </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Diagnosis</p>
+            <h2>診断タイプ</h2>
+          </div>
+          {diagnosisResult !== null && (
+            <span className="status-pill">診断済み</span>
+          )}
+        </div>
+
+        {diagnosisResult === null ? (
+          <div className="diagnosis-summary">
+            <p className="muted-text">
+              まだ診断が行われていません。タスクの進め方タイプを診断すると、ここに結果が表示されます。
+            </p>
+            <Link className="text-link" to="/diagnosis">
+              診断する
+            </Link>
+          </div>
+        ) : (
+          <div className="diagnosis-summary">
+            <strong>{diagnosisResult.typeName}</strong>
+            <p>{diagnosisResult.description}</p>
+            <Link className="text-link" to="/diagnosis">
+              結果を見る
+            </Link>
+          </div>
+        )}
       </section>
 
       <section className="panel">
