@@ -243,7 +243,9 @@ input:focus {
 }
 
 .primary-button,
+.secondary-button,
 .task-actions button,
+.inline-actions button,
 .danger-button,
 .choice-button {
   min-height: 42px;
@@ -257,6 +259,18 @@ input:focus {
   margin-top: 18px;
   color: #ffffff;
   background: #2f6b3f;
+}
+
+.secondary-button {
+  margin-top: 18px;
+  color: #2f3441;
+  background: #e9edf3;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .task-list {
@@ -326,6 +340,7 @@ input:focus {
 }
 
 .task-actions button,
+.inline-actions button,
 .choice-button {
   color: #2f3441;
   background: #e9edf3;
@@ -334,6 +349,22 @@ input:focus {
 .danger-button {
   color: #8f2d2d;
   background: #f8e7e7;
+}
+
+.schedule-list li {
+  align-items: flex-start;
+}
+
+.schedule-list strong,
+.schedule-list span {
+  display: block;
+}
+
+.inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .error-text {

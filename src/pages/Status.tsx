@@ -1,14 +1,16 @@
 import { Link } from "react-router-dom";
-import { sampleTasks } from "../data/sampleData";
+import { useAppData } from "../hooks/useAppData";
 
 function Status() {
-  const completedCount = sampleTasks.filter((task) => task.completed).length;
-  const incompleteCount = sampleTasks.length - completedCount;
-  const achievementRate = Math.round((completedCount / sampleTasks.length) * 100);
-  const remainingMinutes = sampleTasks
+  const { tasks } = useAppData();
+  const completedCount = tasks.filter((task) => task.completed).length;
+  const incompleteCount = tasks.length - completedCount;
+  const achievementRate =
+    tasks.length === 0 ? 0 : Math.round((completedCount / tasks.length) * 100);
+  const remainingMinutes = tasks
     .filter((task) => !task.completed)
     .reduce((total, task) => total + task.estimatedMinutes, 0);
-  const priorityScore = sampleTasks
+  const priorityScore = tasks
     .filter((task) => !task.completed)
     .reduce((total, task) => total + task.priority * 9, 0);
   const tsumido = Math.min(100, Math.round(20 + remainingMinutes / 8 + priorityScore));
