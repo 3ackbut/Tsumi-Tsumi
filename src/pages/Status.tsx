@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
+import { calculateTsumiScore } from "../utils/tsumiScore";
 
 function Status() {
-  const { tasks } = useAppData();
+  const { tasks, diagnosisResult } = useAppData();
   const completedCount = tasks.filter((task) => task.completed).length;
   const incompleteCount = tasks.length - completedCount;
   const achievementRate =
@@ -10,16 +11,7 @@ function Status() {
   const remainingMinutes = tasks
     .filter((task) => !task.completed)
     .reduce((total, task) => total + task.estimatedMinutes, 0);
-  const importanceScore = tasks
-    .filter((task) => !task.completed)
-    .reduce((total, task) => total + task.importance * 9, 0);
-  const tsumido = Math.min(100, Math.round(20 + remainingMinutes / 8 + importanceScore));
-  const comment =
-    tsumido >= 80
-      ? "かなり積み上がっています。重要度の高いタスクから先に片付けましょう。"
-      : tsumido >= 50
-        ? "少し忙しい状態です。今日できる量に分けると進めやすくなります。"
-        : "余裕があります。早めに進めると安心です。";
+  const tsumiScore = calculateTsumiScore(tasks, diagnosisResult);
 
   return (
     <main className="page">
@@ -28,7 +20,7 @@ function Status() {
           <p className="eyebrow">Status</p>
           <h1>積み上げ状況</h1>
           <p className="lead">
-            タスクの残量と達成状況から、現在のつみ度を簡易計算しています。
+            つみ度は高いほどタスクが積み上がっていて注意が必要な状態を表します。
           </p>
         </div>
         <Link className="text-link" to="/">
@@ -40,13 +32,14 @@ function Status() {
         <div className="status-hero">
           <div>
             <p className="eyebrow">Tsumi Score</p>
-            <strong>{tsumido}%</strong>
+            <strong>{tsumiScore.score}%</strong>
+            <span className="tsumi-label">{tsumiScore.label}</span>
           </div>
-          <p>{comment}</p>
+          <p>{tsumiScore.message}</p>
         </div>
 
-        <div className="meter" aria-label={`つみ度 ${tsumido}%`}>
-          <span style={{ width: `${tsumido}%` }} />
+        <div className="meter" aria-label={`つみ度 ${tsumiScore.score}%`}>
+          <span style={{ width: `${tsumiScore.score}%` }} />
         </div>
       </section>
 
@@ -69,6 +62,56 @@ function Status() {
             <strong>{remainingMinutes}分</strong>
           </div>
         </div>
+      </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Reasons</p>
+            <h2>つみ度が高くなっている理由</h2>
+          </div>
+        </div>
+
+        <ul className="reason-list">
+          {tsumiScore.reasons.map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Impact Tasks</p>
+            <h2>つみ度に影響しているタスク</h2>
+          </div>
+          <span className="status-pill">
+            最大{tsumiScore.influentialTasks.length}件
+          </span>
+        </div>
+
+        {tsumiScore.influentialTasks.length === 0 ? (
+          <div className="empty-state">
+            <strong>影響している未完了タスクはありません。</strong>
+            <p>未完了タスクがないため、つみ度は低い状態です。</p>
+          </div>
+        ) : (
+          <ul className="impact-task-list">
+            {tsumiScore.influentialTasks.map(({ task, autoPriorityLevel }) => (
+              <li key={`${task.name}-${task.deadline}`}>
+                <div>
+                  <strong>{task.name}</strong>
+                  <p>
+                    締切: {task.deadline} / 重要度: {task.importance}
+                  </p>
+                </div>
+                <span className={`priority-badge priority-${autoPriorityLevel}`}>
+                  優先度: {autoPriorityLevel}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </main>
   );
