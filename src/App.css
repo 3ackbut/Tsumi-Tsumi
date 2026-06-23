@@ -320,6 +320,33 @@ input:focus {
   line-height: 1.5;
 }
 
+.auto-priority-box {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #dbe7df;
+  border-radius: 8px;
+}
+
+.auto-priority-box span {
+  color: #54735f;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.auto-priority-box strong {
+  color: #151923;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.auto-priority-box p {
+  margin: 0;
+  color: #3c4350;
+}
+
 .check-button {
   flex: 0 0 auto;
   width: 30px;

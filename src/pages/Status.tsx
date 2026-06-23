@@ -10,13 +10,13 @@ function Status() {
   const remainingMinutes = tasks
     .filter((task) => !task.completed)
     .reduce((total, task) => total + task.estimatedMinutes, 0);
-  const priorityScore = tasks
+  const importanceScore = tasks
     .filter((task) => !task.completed)
-    .reduce((total, task) => total + task.priority * 9, 0);
-  const tsumido = Math.min(100, Math.round(20 + remainingMinutes / 8 + priorityScore));
+    .reduce((total, task) => total + task.importance * 9, 0);
+  const tsumido = Math.min(100, Math.round(20 + remainingMinutes / 8 + importanceScore));
   const comment =
     tsumido >= 80
-      ? "かなり積み上がっています。優先度の高いタスクから先に片付けましょう。"
+      ? "かなり積み上がっています。重要度の高いタスクから先に片付けましょう。"
       : tsumido >= 50
         ? "少し忙しい状態です。今日できる量に分けると進めやすくなります。"
         : "余裕があります。早めに進めると安心です。";

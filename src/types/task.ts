@@ -2,6 +2,6 @@ export interface Task {
   name: string;
   deadline: string;
   estimatedMinutes: number;
-  priority: number;
+  importance: number;
   completed: boolean;
 }
