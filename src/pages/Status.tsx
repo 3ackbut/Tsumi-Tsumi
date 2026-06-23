@@ -63,6 +63,56 @@ function Status() {
           </div>
         </div>
       </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Reasons</p>
+            <h2>つみ度が高くなっている理由</h2>
+          </div>
+        </div>
+
+        <ul className="reason-list">
+          {tsumiScore.reasons.map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Impact Tasks</p>
+            <h2>つみ度に影響しているタスク</h2>
+          </div>
+          <span className="status-pill">
+            最大{tsumiScore.influentialTasks.length}件
+          </span>
+        </div>
+
+        {tsumiScore.influentialTasks.length === 0 ? (
+          <div className="empty-state">
+            <strong>影響している未完了タスクはありません。</strong>
+            <p>未完了タスクがないため、つみ度は低い状態です。</p>
+          </div>
+        ) : (
+          <ul className="impact-task-list">
+            {tsumiScore.influentialTasks.map(({ task, autoPriorityLevel }) => (
+              <li key={`${task.name}-${task.deadline}`}>
+                <div>
+                  <strong>{task.name}</strong>
+                  <p>
+                    締切: {task.deadline} / 重要度: {task.importance}
+                  </p>
+                </div>
+                <span className={`priority-badge priority-${autoPriorityLevel}`}>
+                  優先度: {autoPriorityLevel}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }

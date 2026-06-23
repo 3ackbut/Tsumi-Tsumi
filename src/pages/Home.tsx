@@ -15,43 +15,54 @@ function Home() {
     (schedule) => schedule.date === today,
   );
   const incompleteTasks = tasks.filter((task) => !task.completed);
+  const completedTasks = tasks.filter((task) => task.completed);
   const tsumiScore = calculateTsumiScore(tasks, diagnosisResult);
 
   return (
     <main className="page">
-      <section className="hero">
+      <section className="hero home-hero">
         <p className="eyebrow">タスク管理・つみ度可視化システム</p>
         <h1>Tsumi-Tsumi</h1>
         <p className="lead">
-          タスク、予定、忙しさをひとつの画面で確認し、今日やることを整理するためのWebアプリです。
+          つみ度は高いほど、未完了タスクが積み上がっていて注意が必要な状態を表します。
         </p>
       </section>
 
-      <section className="panel">
-        <div className="section-heading">
+      <section className="tsumi-focus-panel">
+        <div className="tsumi-focus-content">
           <div>
-            <p className="eyebrow">Today</p>
-            <h2>今日の状況</h2>
+            <p className="eyebrow">Current Tsumi</p>
+            <h2>現在のつみ度</h2>
+            <p className="tsumi-focus-message">{tsumiScore.message}</p>
           </div>
-          <span className="status-pill">保存データ</span>
-        </div>
 
-        <div className="stats-grid">
-          <div className="stat-card">
-            <span>今日のタスク</span>
-            <strong>{todayTasks.length}件</strong>
-          </div>
-          <div className="stat-card">
-            <span>未完了</span>
-            <strong>{incompleteTasks.length}件</strong>
-          </div>
-          <div className="stat-card stat-card-accent">
-            <span>つみ度</span>
+          <div className="tsumi-score-display">
             <strong>{tsumiScore.score}%</strong>
-            <p className="stat-note">{tsumiScore.label}</p>
+            <span>{tsumiScore.label}</span>
           </div>
         </div>
 
+        <div className="home-summary-grid">
+          <div>
+            <span>今日のタスク</span>
+            <strong>{todayTasks.length}</strong>
+          </div>
+          <div>
+            <span>未完了</span>
+            <strong>{incompleteTasks.length}</strong>
+          </div>
+          <div>
+            <span>完了</span>
+            <strong>{completedTasks.length}</strong>
+          </div>
+          <div>
+            <span>今日の予定</span>
+            <strong>{todaySchedules.length}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section className="panel">
         <div className="two-column">
           <div>
             <h3>今日のタスク</h3>
@@ -92,39 +103,8 @@ function Home() {
       <section className="panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Diagnosis</p>
-            <h2>診断タイプ</h2>
-          </div>
-          {diagnosisResult !== null && (
-            <span className="status-pill">診断済み</span>
-          )}
-        </div>
-
-        {diagnosisResult === null ? (
-          <div className="diagnosis-summary">
-            <p className="muted-text">
-              まだ診断が行われていません。タスクの進め方タイプを診断すると、ここに結果が表示されます。
-            </p>
-            <Link className="text-link" to="/diagnosis">
-              診断する
-            </Link>
-          </div>
-        ) : (
-          <div className="diagnosis-summary">
-            <strong>{diagnosisResult.typeName}</strong>
-            <p>{diagnosisResult.description}</p>
-            <Link className="text-link" to="/diagnosis">
-              結果を見る
-            </Link>
-          </div>
-        )}
-      </section>
-
-      <section className="panel">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Menu</p>
-            <h2>機能メニュー</h2>
+            <p className="eyebrow">Next Action</p>
+            <h2>次に見る画面</h2>
           </div>
         </div>
 
@@ -143,7 +123,11 @@ function Home() {
           </Link>
           <Link className="menu-card" to="/diagnosis">
             <span>診断</span>
-            <p>タイプ別のおすすめタスク</p>
+            <p>
+              {diagnosisResult === null
+                ? "未診断: タイプを確認"
+                : `${diagnosisResult.typeName}: 結果を見る`}
+            </p>
           </Link>
         </div>
       </section>

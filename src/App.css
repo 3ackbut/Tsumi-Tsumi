@@ -38,6 +38,15 @@ button {
   padding: 40px 0 20px;
 }
 
+.home-hero {
+  padding-bottom: 8px;
+  text-align: center;
+}
+
+.home-hero .lead {
+  margin-inline: auto;
+}
+
 h1,
 h2,
 h3,
@@ -130,6 +139,82 @@ h3 {
 .stat-card-accent {
   background: #eef7f0;
   border-color: #c9dfcf;
+}
+
+.tsumi-focus-panel {
+  margin-top: 24px;
+  padding: 30px;
+  background: #ffffff;
+  border: 1px solid #e4e8ef;
+  border-radius: 8px;
+  box-shadow: 0 16px 36px rgba(24, 35, 55, 0.08);
+}
+
+.tsumi-focus-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+}
+
+.tsumi-focus-message {
+  max-width: 560px;
+  margin-top: 10px;
+  color: #3c4350;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.tsumi-score-display {
+  display: grid;
+  place-items: center;
+  min-width: 220px;
+  padding: 24px;
+  background: #fff7e6;
+  border: 1px solid #eed8a8;
+  border-radius: 8px;
+}
+
+.tsumi-score-display strong {
+  color: #151923;
+  font-size: clamp(64px, 12vw, 112px);
+  line-height: 0.95;
+}
+
+.tsumi-score-display span {
+  margin-top: 10px;
+  padding: 6px 14px;
+  color: #77510b;
+  background: #fff1c7;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.home-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.home-summary-grid div {
+  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid #e4e8ef;
+  border-radius: 8px;
+}
+
+.home-summary-grid span {
+  color: #687182;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.home-summary-grid strong {
+  display: block;
+  margin-top: 4px;
+  color: #151923;
+  font-size: 28px;
 }
 
 .menu-card {
@@ -577,6 +662,44 @@ input:focus {
   border-radius: inherit;
 }
 
+.reason-list,
+.impact-task-list {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 18px 0 0;
+  list-style: none;
+}
+
+.reason-list li {
+  padding: 14px 16px;
+  color: #3c4350;
+  background: #fff7e6;
+  border: 1px solid #eed8a8;
+  border-radius: 8px;
+  line-height: 1.6;
+}
+
+.impact-task-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e4e8ef;
+  border-radius: 8px;
+}
+
+.impact-task-list strong {
+  color: #151923;
+}
+
+.impact-task-list p {
+  margin-top: 6px;
+  color: #687182;
+}
+
 .choice-row {
   display: flex;
   flex-wrap: wrap;
@@ -658,10 +781,19 @@ input:focus {
   .stats-grid,
   .menu-grid,
   .form-grid,
+  .home-summary-grid,
   .two-column,
   .day-content,
   .result-detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .tsumi-focus-content {
+    grid-template-columns: 1fr;
+  }
+
+  .tsumi-score-display {
+    min-width: 0;
   }
 
   .panel {
@@ -689,6 +821,11 @@ input:focus {
   }
 
   .compact-list li {
+    align-items: flex-start;
+    display: grid;
+  }
+
+  .impact-task-list li {
     align-items: flex-start;
     display: grid;
   }
