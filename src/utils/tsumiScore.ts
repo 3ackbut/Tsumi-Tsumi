@@ -73,15 +73,19 @@ function getEstimatedMinutesWeight(estimatedMinutes: number) {
 }
 
 function getLabel(score: number) {
-  if (score >= 80) {
+  if (score >= 90) {
+    return "限界に近い";
+  }
+
+  if (score >= 75) {
     return "かなり危険";
   }
 
-  if (score >= 60) {
+  if (score >= 50) {
     return "注意";
   }
 
-  if (score >= 30) {
+  if (score >= 25) {
     return "少し積み気味";
   }
 
@@ -89,19 +93,56 @@ function getLabel(score: number) {
 }
 
 function getMessage(score: number) {
-  if (score >= 80) {
+  if (score >= 90) {
+    return "かなり限界に近い状態です。期限切れや優先度の高いタスクをすぐに減らしましょう。";
+  }
+
+  if (score >= 75) {
     return "未完了タスクがかなり積み上がっています。期限切れや優先度の高いタスクからすぐに確認しましょう。";
   }
 
-  if (score >= 60) {
+  if (score >= 50) {
     return "タスクが積み上がり始めています。締切が近いものから順番に減らすのがおすすめです。";
   }
 
-  if (score >= 30) {
+  if (score >= 25) {
     return "少し積み気味です。短時間で終わるタスクを先に片付けると余裕が戻ります。";
   }
 
   return "まだ余裕があります。今のうちに重要度の高いタスクを少し進めておくと安心です。";
+}
+
+function getTaskCountCap(incompleteTaskCount: number) {
+  if (incompleteTaskCount <= 1) {
+    return 70;
+  }
+
+  if (incompleteTaskCount === 2) {
+    return 82;
+  }
+
+  if (incompleteTaskCount === 3) {
+    return 90;
+  }
+
+  if (incompleteTaskCount === 4) {
+    return 96;
+  }
+
+  return 100;
+}
+
+function convertRawScoreToTsumiScore(
+  rawScore: number,
+  incompleteTaskCount: number,
+) {
+  const saturatedScore = 100 * (1 - Math.exp(-rawScore / 180));
+  const cappedScore = Math.min(
+    saturatedScore,
+    getTaskCountCap(incompleteTaskCount),
+  );
+
+  return Math.round(cappedScore);
 }
 
 function buildReasons(influentialTasks: TsumiInfluentialTask[]) {
@@ -174,7 +215,7 @@ export function calculateTsumiScore(
     (total, scoredTask) => total + scoredTask.score,
     0,
   );
-  const score = Math.min(100, Math.round(rawScore));
+  const score = convertRawScoreToTsumiScore(rawScore, incompleteTasks.length);
   const influentialTasks = [...scoredTasks]
     .sort((firstTask, secondTask) => {
       if (secondTask.score !== firstTask.score) {

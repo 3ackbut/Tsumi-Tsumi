@@ -1,6 +1,7 @@
 import "../App.css";
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
+import { getHomeAdvice } from "../utils/homeAdvice";
 import { calculateTsumiScore } from "../utils/tsumiScore";
 
 function formatDate(date: Date) {
@@ -17,6 +18,7 @@ function Home() {
   const incompleteTasks = tasks.filter((task) => !task.completed);
   const completedTasks = tasks.filter((task) => task.completed);
   const tsumiScore = calculateTsumiScore(tasks, diagnosisResult);
+  const homeAdvice = getHomeAdvice(diagnosisResult, tsumiScore.score);
 
   return (
     <main className="page">
@@ -34,6 +36,10 @@ function Home() {
             <p className="eyebrow">Current Tsumi</p>
             <h2>現在のつみ度</h2>
             <p className="tsumi-focus-message">{tsumiScore.message}</p>
+            <div className="home-advice">
+              <span>次の一手</span>
+              <p>{homeAdvice}</p>
+            </div>
           </div>
 
           <div className="tsumi-score-display">
