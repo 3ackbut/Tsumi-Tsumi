@@ -8,12 +8,11 @@ export interface AutoPriorityResult {
   reason: string;
 }
 
-function getDaysUntilDeadline(deadline: string) {
-  const today = new Date();
+function getDaysUntilDeadline(deadline: string, baseDate: Date) {
   const todayDate = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
+    baseDate.getFullYear(),
+    baseDate.getMonth(),
+    baseDate.getDate(),
   );
   const deadlineDate = new Date(`${deadline}T00:00:00`);
   const diffMilliseconds = deadlineDate.getTime() - todayDate.getTime();
@@ -64,8 +63,10 @@ function buildReason(
 export function judgeAutoPriority(
   task: Task,
   diagnosisResult: DiagnosisResult | null,
+  baseDate?: Date,
 ): AutoPriorityResult {
-  const daysUntilDeadline = getDaysUntilDeadline(task.deadline);
+  const referenceDate = baseDate ?? new Date();
+  const daysUntilDeadline = getDaysUntilDeadline(task.deadline, referenceDate);
   const diagnosisType = diagnosisResult?.typeName ?? null;
   let score = task.importance * 12;
 

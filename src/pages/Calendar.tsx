@@ -2,10 +2,55 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
 import type { Schedule } from "../types/schedule";
+import { calculateTsumiScore } from "../utils/tsumiScore";
+
+const dayLabels = ["日", "月", "火", "水", "木", "金", "土"];
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString("sv-SE");
+}
+
+function formatDisplayDate(date: Date) {
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+function getStartOfWeek(date: Date) {
+  const startOfWeek = new Date(date);
+  startOfWeek.setHours(0, 0, 0, 0);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+  return startOfWeek;
+}
+
+function addDays(date: Date, days: number) {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + days);
+
+  return nextDate;
+}
+
+function buildForecastReason(item: ReturnType<typeof calculateTsumiScore>) {
+  const { overdueTaskCount, upcomingDeadlineTaskCount } = item.breakdown;
+
+  if (overdueTaskCount > 0) {
+    return "期限切れが増えています";
+  }
+
+  if (upcomingDeadlineTaskCount > 0) {
+    return "締切が近いタスクがあります";
+  }
+
+  if (item.score >= 25) {
+    return "未完了タスクが積み上がっています";
+  }
+
+  return "まだ余裕があります";
+}
 
 function Calendar() {
   const {
     tasks,
+    diagnosisResult,
     schedules,
     addSchedule,
     updateSchedule,
@@ -19,12 +64,27 @@ function Calendar() {
   const [editingScheduleIndex, setEditingScheduleIndex] = useState<
     number | null
   >(null);
-  const dates = Array.from(
-    new Set([
-      ...schedules.map((schedule) => schedule.date),
-      ...tasks.map((task) => task.deadline),
-    ]),
-  ).sort();
+  const today = new Date();
+  const [weekStartDate, setWeekStartDate] = useState(() =>
+    getStartOfWeek(today),
+  );
+  const weekDates = Array.from({ length: 7 }, (_, index) =>
+    addDays(weekStartDate, index),
+  );
+  const forecastTargets = [
+    { label: "今日", date: today },
+    { label: "1日後", date: addDays(today, 1) },
+    { label: "3日後", date: addDays(today, 3) },
+    { label: "7日後", date: addDays(today, 7) },
+  ];
+  const forecastItems = forecastTargets.map((forecastTarget) => ({
+    ...forecastTarget,
+    tsumiScore: calculateTsumiScore(
+      tasks,
+      diagnosisResult,
+      forecastTarget.date,
+    ),
+  }));
 
   const resetForm = () => {
     setTitle("");
@@ -80,6 +140,16 @@ function Calendar() {
   const handleDeleteSchedule = (index: number) => {
     deleteSchedule(index);
     resetForm();
+  };
+
+  const moveWeek = (weekOffset: number) => {
+    setWeekStartDate((currentWeekStartDate) =>
+      addDays(currentWeekStartDate, weekOffset * 7),
+    );
+  };
+
+  const moveToThisWeek = () => {
+    setWeekStartDate(getStartOfWeek(new Date()));
   };
 
   return (
@@ -161,81 +231,127 @@ function Calendar() {
       <section className="panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Schedule</p>
-            <h2>日付別の予定とタスク</h2>
+            <p className="eyebrow">Forecast</p>
+            <h2>推定つみ度</h2>
           </div>
         </div>
+        <p className="muted-text forecast-description">
+          現在の未完了タスクが残った場合のつみ度予測です。
+        </p>
 
-        <div className="day-list">
-          {dates.length === 0 ? (
-            <p className="muted-text">表示する予定やタスクはありません。</p>
-          ) : (
-            dates.map((dateItem) => {
-              const daySchedules = schedules
-                .map((schedule, index) => ({ schedule, index }))
-                .filter(({ schedule }) => schedule.date === dateItem);
-              const dayTasks = tasks.filter((task) => task.deadline === dateItem);
+        <div className="forecast-grid">
+          {forecastItems.map((item) => (
+            <div className="forecast-card" key={item.label}>
+              <span>{item.label}</span>
+              <strong>{item.tsumiScore.score}</strong>
+              <p>{item.tsumiScore.label}</p>
+              <div className="forecast-breakdown">
+                <small>
+                  期限切れ: {item.tsumiScore.breakdown.overdueTaskCount}件
+                </small>
+                <small>
+                  3日以内: {item.tsumiScore.breakdown.upcomingDeadlineTaskCount}
+                  件
+                </small>
+              </div>
+              <p className="forecast-reason">
+                理由: {buildForecastReason(item.tsumiScore)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-              return (
-                <article className="day-card" key={dateItem}>
-                  <div className="day-date">{dateItem}</div>
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Weekly</p>
+            <h2>週間カレンダー</h2>
+          </div>
+          <span className="status-pill">
+            {formatDisplayDate(weekStartDate)}-
+            {formatDisplayDate(addDays(weekStartDate, 6))}
+          </span>
+        </div>
 
-                  <div className="day-content">
-                    <div>
-                      <h3>予定</h3>
-                      {daySchedules.length === 0 ? (
-                        <p className="muted-text">予定はありません。</p>
-                      ) : (
-                        <ul className="compact-list schedule-list">
-                          {daySchedules.map(({ schedule, index }) => (
-                            <li key={`${schedule.title}-${schedule.date}-${index}`}>
-                              <div>
-                                <span>
-                                  {schedule.startTime}-{schedule.endTime}
-                                </span>
-                                <strong>{schedule.title}</strong>
-                              </div>
-                              <div className="inline-actions">
-                                <button
-                                  type="button"
-                                  onClick={() => startEditSchedule(index)}
-                                >
-                                  編集
-                                </button>
-                                <button
-                                  className="danger-button"
-                                  type="button"
-                                  onClick={() => handleDeleteSchedule(index)}
-                                >
-                                  削除
-                                </button>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
+        <div className="week-controls">
+          <button type="button" onClick={() => moveWeek(-1)}>
+            前の週
+          </button>
+          <button type="button" onClick={moveToThisWeek}>
+            今週
+          </button>
+          <button type="button" onClick={() => moveWeek(1)}>
+            次の週
+          </button>
+        </div>
 
-                    <div>
-                      <h3>締切タスク</h3>
-                      {dayTasks.length === 0 ? (
-                        <p className="muted-text">締切タスクはありません。</p>
-                      ) : (
-                        <ul className="compact-list">
-                          {dayTasks.map((task, index) => (
-                            <li key={`${task.name}-${task.deadline}-${index}`}>
-                              <span>{task.completed ? "完了" : "未完了"}</span>
-                              <strong>{task.name}</strong>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              );
-            })
-          )}
+        <div className="weekly-grid">
+          {weekDates.map((dateItem) => {
+            const dateKey = formatDate(dateItem);
+            const daySchedules = schedules
+              .map((schedule, index) => ({ schedule, index }))
+              .filter(({ schedule }) => schedule.date === dateKey);
+            const dayTasks = tasks.filter((task) => task.deadline === dateKey);
+
+            return (
+              <article className="week-day-card" key={dateKey}>
+                <div className="week-day-header">
+                  <span>{dayLabels[dateItem.getDay()]}</span>
+                  <strong>{formatDisplayDate(dateItem)}</strong>
+                </div>
+
+                <div className="week-day-section">
+                  <h3>予定</h3>
+                  {daySchedules.length === 0 ? (
+                    <p className="muted-text">なし</p>
+                  ) : (
+                    <ul className="week-item-list">
+                      {daySchedules.map(({ schedule, index }) => (
+                        <li className="week-item schedule-item" key={`${schedule.title}-${index}`}>
+                          <span>
+                            {schedule.startTime}-{schedule.endTime}
+                          </span>
+                          <strong>{schedule.title}</strong>
+                          <div className="inline-actions">
+                            <button
+                              type="button"
+                              onClick={() => startEditSchedule(index)}
+                            >
+                              編集
+                            </button>
+                            <button
+                              className="danger-button"
+                              type="button"
+                              onClick={() => handleDeleteSchedule(index)}
+                            >
+                              削除
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <div className="week-day-section">
+                  <h3>締切</h3>
+                  {dayTasks.length === 0 ? (
+                    <p className="muted-text">なし</p>
+                  ) : (
+                    <ul className="week-item-list">
+                      {dayTasks.map((task, index) => (
+                        <li className="week-item task-deadline-item" key={`${task.name}-${index}`}>
+                          <span>{task.completed ? "完了" : "未完了"}</span>
+                          <strong>{task.name}</strong>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
     </main>
