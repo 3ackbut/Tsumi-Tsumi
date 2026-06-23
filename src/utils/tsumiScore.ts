@@ -8,6 +8,7 @@ export interface TsumiScoreResult {
   message: string;
   reasons: string[];
   influentialTasks: TsumiInfluentialTask[];
+  breakdown: TsumiScoreBreakdown;
 }
 
 export interface TsumiInfluentialTask {
@@ -17,18 +18,23 @@ export interface TsumiInfluentialTask {
   score: number;
 }
 
+export interface TsumiScoreBreakdown {
+  overdueTaskCount: number;
+  upcomingDeadlineTaskCount: number;
+  mainReasons: string[];
+}
+
 const autoPriorityWeight: Record<AutoPriorityLevel, number> = {
   高: 18,
   中: 10,
   低: 4,
 };
 
-function getDaysUntilDeadline(deadline: string) {
-  const today = new Date();
+function getDaysUntilDeadline(deadline: string, baseDate: Date) {
   const todayDate = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
+    baseDate.getFullYear(),
+    baseDate.getMonth(),
+    baseDate.getDate(),
   );
   const deadlineDate = new Date(`${deadline}T00:00:00`);
   const diffMilliseconds = deadlineDate.getTime() - todayDate.getTime();
@@ -38,7 +44,13 @@ function getDaysUntilDeadline(deadline: string) {
 
 function getDeadlineWeight(daysUntilDeadline: number) {
   if (daysUntilDeadline < 0) {
-    return 28;
+    const overdueDays = Math.abs(daysUntilDeadline);
+
+    return 30 + Math.min(overdueDays * 4, 20);
+  }
+
+  if (daysUntilDeadline === 0) {
+    return 27;
   }
 
   if (daysUntilDeadline <= 1) {
@@ -179,10 +191,29 @@ function buildReasons(influentialTasks: TsumiInfluentialTask[]) {
   return reasons;
 }
 
+function buildBreakdown(
+  influentialTasks: TsumiInfluentialTask[],
+): TsumiScoreBreakdown {
+  const overdueTaskCount = influentialTasks.filter(
+    ({ daysUntilDeadline }) => daysUntilDeadline < 0,
+  ).length;
+  const upcomingDeadlineTaskCount = influentialTasks.filter(
+    ({ daysUntilDeadline }) => daysUntilDeadline >= 0 && daysUntilDeadline <= 3,
+  ).length;
+
+  return {
+    overdueTaskCount,
+    upcomingDeadlineTaskCount,
+    mainReasons: buildReasons(influentialTasks).slice(0, 2),
+  };
+}
+
 export function calculateTsumiScore(
   tasks: Task[],
   diagnosisResult: DiagnosisResult | null,
+  baseDate?: Date,
 ): TsumiScoreResult {
+  const referenceDate = baseDate ?? new Date();
   const incompleteTasks = tasks.filter((task) => !task.completed);
 
   if (incompleteTasks.length === 0) {
@@ -192,12 +223,24 @@ export function calculateTsumiScore(
       message: "未完了タスクはありません。今はかなり余裕がある状態です。",
       reasons: ["未完了タスクがないため、つみ度は低い状態です。"],
       influentialTasks: [],
+      breakdown: {
+        overdueTaskCount: 0,
+        upcomingDeadlineTaskCount: 0,
+        mainReasons: ["未完了タスクがないため、つみ度は低い状態です。"],
+      },
     };
   }
 
   const scoredTasks = incompleteTasks.map<TsumiInfluentialTask>((task) => {
-    const autoPriority = judgeAutoPriority(task, diagnosisResult);
-    const daysUntilDeadline = getDaysUntilDeadline(task.deadline);
+    const autoPriority = judgeAutoPriority(
+      task,
+      diagnosisResult,
+      referenceDate,
+    );
+    const daysUntilDeadline = getDaysUntilDeadline(
+      task.deadline,
+      referenceDate,
+    );
     const taskScore =
       task.importance * 6 +
       autoPriorityWeight[autoPriority.level] +
@@ -225,12 +268,14 @@ export function calculateTsumiScore(
       return firstTask.daysUntilDeadline - secondTask.daysUntilDeadline;
     })
     .slice(0, 3);
+  const reasons = buildReasons(scoredTasks);
 
   return {
     score,
     label: getLabel(score),
     message: getMessage(score),
-    reasons: buildReasons(scoredTasks),
+    reasons,
     influentialTasks,
+    breakdown: buildBreakdown(scoredTasks),
   };
 }
