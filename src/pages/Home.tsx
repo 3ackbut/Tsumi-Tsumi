@@ -1,103 +1,110 @@
 import "../App.css";
-import type { Task } from "../types/task";
-import type { Schedule } from "../types/schedule";
 import { Link } from "react-router-dom";
+import { sampleSchedules, sampleTasks } from "../data/sampleData";
 
 function Home() {
-  const tsumido = 75;
-
-  const tasks: Task[] = [
-  {
-    name: "英語課題",
-    deadline: "2026-06-20",
-    estimatedMinutes: 60,
-    priority: 3,
-    completed: false,
-  },
-  {
-    name: "レポート",
-    deadline: "2026-06-18",
-    estimatedMinutes: 120,
-    priority: 5,
-    completed: false,
-  },
-  {
-    name: "発表準備",
-    deadline: "2026-06-25",
-    estimatedMinutes: 90,
-    priority: 4,
-    completed: true,
-  },
-];
-
-  const schedules: Schedule[] = [
-    {
-      title: "家庭教師",
-      date: "2026-06-14",
-      startTime: "19:00",
-      endTime: "20:00",
-    },
-    {
-      title: "ソフトウェア設計",
-      date: "2026-06-14",
-      startTime: "14:40",
-      endTime: "16:10",
-    },
-  ];
+  const today = "2026-06-23";
+  const todayTasks = sampleTasks.filter((task) => task.deadline === today);
+  const todaySchedules = sampleSchedules.filter(
+    (schedule) => schedule.date === today,
+  );
+  const incompleteTasks = sampleTasks.filter((task) => !task.completed);
+  const priorityLoad = incompleteTasks.reduce(
+    (total, task) => total + task.priority * 8 + task.estimatedMinutes / 12,
+    0,
+  );
+  const tsumido = Math.min(100, Math.round(25 + priorityLoad));
 
   return (
-    <main>
-      <h1>Tsumi-Tsumi</h1>
-      <p>タスクや予定を整理して、今日のつみ度を確認しよう。</p>
-
-      <section>
-        <h2>現在のつみ度</h2>
-        <p>{tsumido}%</p>
+    <main className="page">
+      <section className="hero">
+        <p className="eyebrow">タスク管理・つみ度可視化システム</p>
+        <h1>Tsumi-Tsumi</h1>
+        <p className="lead">
+          タスク、予定、忙しさをひとつの画面で確認し、今日やることを整理するためのWebアプリです。
+        </p>
       </section>
 
-      <section>
-        <h2>今日の状況</h2>
-        <p>今日の予定：{schedules.length}件</p>
-        <p>今日のタスク：{tasks.length}件</p>
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Today</p>
+            <h2>今日の状況</h2>
+          </div>
+          <span className="status-pill">サンプル表示</span>
+        </div>
 
-        <h3>タスク一覧</h3>
-        <ul>
-          {tasks.map((task) => (
-            <li key={task.name}>
-              {task.name}（締切: {task.deadline} / 優先度: {task.priority}）
-            </li>
-          ))}
-        </ul>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <span>今日のタスク</span>
+            <strong>{todayTasks.length}件</strong>
+          </div>
+          <div className="stat-card">
+            <span>未完了</span>
+            <strong>{incompleteTasks.length}件</strong>
+          </div>
+          <div className="stat-card stat-card-accent">
+            <span>つみ度</span>
+            <strong>{tsumido}%</strong>
+          </div>
+        </div>
 
-        <h3>予定一覧</h3>
-        <ul>
-          {schedules.map((schedule) => (
-            <li key={schedule.title}>
-              {schedule.title}（{schedule.startTime}〜{schedule.endTime}）
-            </li>
-          ))}
-        </ul>
+        <div className="two-column">
+          <div>
+            <h3>今日のタスク</h3>
+            <ul className="compact-list">
+              {todayTasks.map((task) => (
+                <li key={task.name}>
+                  <span>{task.completed ? "完了" : "未完了"}</span>
+                  <strong>{task.name}</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3>今日の予定</h3>
+            <ul className="compact-list">
+              {todaySchedules.map((schedule) => (
+                <li key={schedule.title}>
+                  <span>
+                    {schedule.startTime}-{schedule.endTime}
+                  </span>
+                  <strong>{schedule.title}</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
-      <section>
-            <h2>メニュー</h2>
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Menu</p>
+            <h2>機能メニュー</h2>
+          </div>
+        </div>
 
-            <Link to="/tasks">
-                <button>タスク確認</button>
-            </Link>
-
-            <Link to="/calendar">
-                <button>カレンダー</button>
-            </Link>
-
-            <Link to="/status">
-                <button>積み上げ状況</button>
-            </Link>
-
-            <Link to="/diagnosis">
-                <button>診断</button>
-            </Link>
-        </section>
+        <div className="menu-grid">
+          <Link className="menu-card" to="/tasks">
+            <span>タスク確認</span>
+            <p>追加、削除、完了切り替え</p>
+          </Link>
+          <Link className="menu-card" to="/calendar">
+            <span>カレンダー</span>
+            <p>日付ごとの予定とタスク</p>
+          </Link>
+          <Link className="menu-card" to="/status">
+            <span>積み上げ状況</span>
+            <p>つみ度と達成率を確認</p>
+          </Link>
+          <Link className="menu-card" to="/diagnosis">
+            <span>診断</span>
+            <p>タイプ別のおすすめタスク</p>
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
