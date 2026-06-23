@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
+import { calculateTsumiScore } from "../utils/tsumiScore";
 
 function Status() {
-  const { tasks } = useAppData();
+  const { tasks, diagnosisResult } = useAppData();
   const completedCount = tasks.filter((task) => task.completed).length;
   const incompleteCount = tasks.length - completedCount;
   const achievementRate =
@@ -10,16 +11,7 @@ function Status() {
   const remainingMinutes = tasks
     .filter((task) => !task.completed)
     .reduce((total, task) => total + task.estimatedMinutes, 0);
-  const importanceScore = tasks
-    .filter((task) => !task.completed)
-    .reduce((total, task) => total + task.importance * 9, 0);
-  const tsumido = Math.min(100, Math.round(20 + remainingMinutes / 8 + importanceScore));
-  const comment =
-    tsumido >= 80
-      ? "かなり積み上がっています。重要度の高いタスクから先に片付けましょう。"
-      : tsumido >= 50
-        ? "少し忙しい状態です。今日できる量に分けると進めやすくなります。"
-        : "余裕があります。早めに進めると安心です。";
+  const tsumiScore = calculateTsumiScore(tasks, diagnosisResult);
 
   return (
     <main className="page">
@@ -28,7 +20,7 @@ function Status() {
           <p className="eyebrow">Status</p>
           <h1>積み上げ状況</h1>
           <p className="lead">
-            タスクの残量と達成状況から、現在のつみ度を簡易計算しています。
+            つみ度は高いほどタスクが積み上がっていて注意が必要な状態を表します。
           </p>
         </div>
         <Link className="text-link" to="/">
@@ -40,13 +32,14 @@ function Status() {
         <div className="status-hero">
           <div>
             <p className="eyebrow">Tsumi Score</p>
-            <strong>{tsumido}%</strong>
+            <strong>{tsumiScore.score}%</strong>
+            <span className="tsumi-label">{tsumiScore.label}</span>
           </div>
-          <p>{comment}</p>
+          <p>{tsumiScore.message}</p>
         </div>
 
-        <div className="meter" aria-label={`つみ度 ${tsumido}%`}>
-          <span style={{ width: `${tsumido}%` }} />
+        <div className="meter" aria-label={`つみ度 ${tsumiScore.score}%`}>
+          <span style={{ width: `${tsumiScore.score}%` }} />
         </div>
       </section>
 

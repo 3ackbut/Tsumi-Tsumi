@@ -121,6 +121,12 @@ h3 {
   line-height: 1.1;
 }
 
+.stat-note {
+  margin-top: 8px;
+  color: #54735f;
+  font-weight: 800;
+}
+
 .stat-card-accent {
   background: #eef7f0;
   border-color: #c9dfcf;
@@ -536,6 +542,17 @@ input:focus {
   color: #151923;
   font-size: clamp(56px, 12vw, 96px);
   line-height: 1;
+}
+
+.tsumi-label {
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 6px 12px;
+  color: #3d6348;
+  background: #eef7f0;
+  border: 1px solid #c9dfcf;
+  border-radius: 999px;
+  font-weight: 900;
 }
 
 .status-hero p {

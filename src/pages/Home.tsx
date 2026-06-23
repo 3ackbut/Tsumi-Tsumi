@@ -1,6 +1,7 @@
 import "../App.css";
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
+import { calculateTsumiScore } from "../utils/tsumiScore";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE");
@@ -14,11 +15,7 @@ function Home() {
     (schedule) => schedule.date === today,
   );
   const incompleteTasks = tasks.filter((task) => !task.completed);
-  const importanceLoad = incompleteTasks.reduce(
-    (total, task) => total + task.importance * 8 + task.estimatedMinutes / 12,
-    0,
-  );
-  const tsumido = Math.min(100, Math.round(25 + importanceLoad));
+  const tsumiScore = calculateTsumiScore(tasks, diagnosisResult);
 
   return (
     <main className="page">
@@ -50,7 +47,8 @@ function Home() {
           </div>
           <div className="stat-card stat-card-accent">
             <span>つみ度</span>
-            <strong>{tsumido}%</strong>
+            <strong>{tsumiScore.score}%</strong>
+            <p className="stat-note">{tsumiScore.label}</p>
           </div>
         </div>
 
