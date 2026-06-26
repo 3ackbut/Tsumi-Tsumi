@@ -31,6 +31,7 @@ const autoPriorityWeight: Record<AutoPriorityLevel, number> = {
 };
 
 function getDaysUntilDeadline(deadline: string, baseDate: Date) {
+  // baseDateを変えられるようにして、今日だけでなく未来日の推定つみ度にも同じ計算を使う。
   const todayDate = new Date(
     baseDate.getFullYear(),
     baseDate.getMonth(),
@@ -43,6 +44,7 @@ function getDaysUntilDeadline(deadline: string, baseDate: Date) {
 }
 
 function getDeadlineWeight(daysUntilDeadline: number) {
+  // 締切を過ぎたタスクは放置リスクが高いため、超過日数に応じて段階的に重くする。
   if (daysUntilDeadline < 0) {
     const overdueDays = Math.abs(daysUntilDeadline);
 
@@ -69,6 +71,7 @@ function getDeadlineWeight(daysUntilDeadline: number) {
 }
 
 function getEstimatedMinutesWeight(estimatedMinutes: number) {
+  // 見積時間が長いタスクは分割や早めの着手が必要になりやすいため、つみ度を少し上げる。
   if (estimatedMinutes >= 180) {
     return 16;
   }
@@ -125,6 +128,7 @@ function getMessage(score: number) {
 }
 
 function getTaskCountCap(incompleteTaskCount: number) {
+  // 未完了タスクが少ないときは100%になりにくくし、本当に危険な状態だけ高得点にする。
   if (incompleteTaskCount <= 1) {
     return 70;
   }
@@ -148,6 +152,7 @@ function convertRawScoreToTsumiScore(
   rawScore: number,
   incompleteTaskCount: number,
 ) {
+  // 重み合計をそのまま100点換算すると急に最大値へ近づくため、上限に近いほど伸びにくくする。
   const saturatedScore = 100 * (1 - Math.exp(-rawScore / 180));
   const cappedScore = Math.min(
     saturatedScore,
@@ -160,6 +165,7 @@ function convertRawScoreToTsumiScore(
 function buildReasons(influentialTasks: TsumiInfluentialTask[]) {
   const reasons: string[] = [];
 
+  // Status画面で原因を説明できるよう、点数だけでなく積み上がりの要因も文章化する。
   if (
     influentialTasks.some(
       ({ daysUntilDeadline }) => daysUntilDeadline >= 0 && daysUntilDeadline <= 3,
@@ -194,6 +200,7 @@ function buildReasons(influentialTasks: TsumiInfluentialTask[]) {
 function buildBreakdown(
   influentialTasks: TsumiInfluentialTask[],
 ): TsumiScoreBreakdown {
+  // Calendarの予測カードで短く説明できるよう、件数と主な理由を分けて返す。
   const overdueTaskCount = influentialTasks.filter(
     ({ daysUntilDeadline }) => daysUntilDeadline < 0,
   ).length;
@@ -213,6 +220,8 @@ export function calculateTsumiScore(
   diagnosisResult: DiagnosisResult | null,
   baseDate?: Date,
 ): TsumiScoreResult {
+  // つみ度は「高いほど危険」な指標なので、完了済みではなく未完了タスクを中心に見る。
+  // Home/Statusでは今日、Calendarの予測では未来の日付を基準にして締切状態を計算する。
   const referenceDate = baseDate ?? new Date();
   const incompleteTasks = tasks.filter((task) => !task.completed);
 
@@ -232,6 +241,7 @@ export function calculateTsumiScore(
   }
 
   const scoredTasks = incompleteTasks.map<TsumiInfluentialTask>((task) => {
+    // 診断結果は自動優先度に反映済みなので、つみ度では優先度を通して間接的に扱う。
     const autoPriority = judgeAutoPriority(
       task,
       diagnosisResult,
@@ -241,6 +251,7 @@ export function calculateTsumiScore(
       task.deadline,
       referenceDate,
     );
+    // 重要度・自動優先度・締切・見積時間を合計し、各タスクの積み上がりやすさを点数化する。
     const taskScore =
       task.importance * 6 +
       autoPriorityWeight[autoPriority.level] +
@@ -259,6 +270,7 @@ export function calculateTsumiScore(
     0,
   );
   const score = convertRawScoreToTsumiScore(rawScore, incompleteTasks.length);
+  // 影響が大きいタスクを最大3件に絞り、Status画面で原因を確認しやすくする。
   const influentialTasks = [...scoredTasks]
     .sort((firstTask, secondTask) => {
       if (secondTask.score !== firstTask.score) {

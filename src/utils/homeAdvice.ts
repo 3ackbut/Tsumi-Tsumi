@@ -1,6 +1,7 @@
 import type { DiagnosisResult } from "../types/diagnosis";
 
 function isTsumiHigh(score: number) {
+  // 50以上は注意が必要な状態として扱い、Homeの行動コメントを切り替える目安にする。
   return score >= 50;
 }
 
@@ -8,14 +9,17 @@ export function getHomeAdvice(
   diagnosisResult: DiagnosisResult | null,
   tsumiScore: number,
 ) {
+  // Homeでは診断タイプの説明ではなく、現在のつみ度に応じた次の行動を短く示す。
   const isHigh = isTsumiHigh(tsumiScore);
 
   if (diagnosisResult === null) {
+    // 未診断でもHomeが空にならないよう、標準的な行動コメントを表示する。
     return isHigh
       ? "現在のつみ度に応じて未完了タスクを整理しましょう。診断を行うと、より自分に合ったコメントが表示されます。"
       : "余裕があるうちに未完了タスクを確認しましょう。診断を行うと、より自分に合ったコメントが表示されます。";
   }
 
+  // 同じ診断タイプでも、つみ度が高いときは「まず減らす」行動を優先して案内する。
   switch (diagnosisResult.typeName) {
     case "計画型":
       return isHigh

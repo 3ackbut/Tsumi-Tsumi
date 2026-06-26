@@ -26,6 +26,7 @@ function buildReason(
   diagnosisType: string | null,
   level: AutoPriorityLevel,
 ) {
+  // 画面には点数ではなく理由文を出し、ユーザーが判定の根拠を理解できるようにする。
   if (daysUntilDeadline < 0) {
     return `締切を過ぎており、重要度も${task.importance}のため優先度が「${level}」になっています。`;
   }
@@ -65,11 +66,14 @@ export function judgeAutoPriority(
   diagnosisResult: DiagnosisResult | null,
   baseDate?: Date,
 ): AutoPriorityResult {
+  // importanceはユーザーが入力する「重要度」、levelはアプリが計算する「優先度」として分ける。
+  // Calendarの推定表示でも使うため、今日固定ではなく受け取った基準日で締切の近さを判定する。
   const referenceDate = baseDate ?? new Date();
   const daysUntilDeadline = getDaysUntilDeadline(task.deadline, referenceDate);
   const diagnosisType = diagnosisResult?.typeName ?? null;
   let score = task.importance * 12;
 
+  // ユーザー入力の重要度に、締切・見積時間・診断タイプの特徴を足してTsumiTsumi側の優先度にする。
   if (daysUntilDeadline < 0) {
     score += 45;
   } else if (daysUntilDeadline <= 1) {
@@ -86,6 +90,7 @@ export function judgeAutoPriority(
     score += 4;
   }
 
+  // 診断結果ごとに「早めに進めたい」「短時間なら着手しやすい」などの傾向を少しだけ反映する。
   if (diagnosisType === "計画型" && daysUntilDeadline <= 7) {
     score += 10;
   }
@@ -101,6 +106,7 @@ export function judgeAutoPriority(
     score += 8;
   }
 
+  // 未診断の場合は診断タイプの加点が入らず、重要度・締切・見積時間だけの標準ルールになる。
   const level: AutoPriorityLevel =
     score >= 70 ? "高" : score >= 42 ? "中" : "低";
 
