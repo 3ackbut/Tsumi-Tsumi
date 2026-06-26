@@ -14,6 +14,14 @@ function formatDisplayDate(date: Date) {
   return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
+function formatJapaneseDate(date: Date) {
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
+
 function getStartOfWeek(date: Date) {
   const startOfWeek = new Date(date);
   startOfWeek.setHours(0, 0, 0, 0);
@@ -27,6 +35,10 @@ function addDays(date: Date, days: number) {
   nextDate.setDate(nextDate.getDate() + days);
 
   return nextDate;
+}
+
+function isSameDate(firstDate: Date, secondDate: Date) {
+  return formatDate(firstDate) === formatDate(secondDate);
 }
 
 function buildForecastReason(item: ReturnType<typeof calculateTsumiScore>) {
@@ -71,6 +83,7 @@ function Calendar() {
   const weekDates = Array.from({ length: 7 }, (_, index) =>
     addDays(weekStartDate, index),
   );
+  const weekEndDate = addDays(weekStartDate, 6);
   const forecastTargets = [
     { label: "今日", date: today },
     { label: "1日後", date: addDays(today, 1) },
@@ -269,12 +282,15 @@ function Calendar() {
             <h2>週間カレンダー</h2>
           </div>
           <span className="status-pill">
-            {formatDisplayDate(weekStartDate)}-
-            {formatDisplayDate(addDays(weekStartDate, 6))}
+            {formatJapaneseDate(weekStartDate)}〜{formatJapaneseDate(weekEndDate)}
           </span>
         </div>
 
         <div className="week-controls">
+          <span className="week-range">
+            表示中: {formatJapaneseDate(weekStartDate)}〜
+            {formatJapaneseDate(weekEndDate)}
+          </span>
           <button type="button" onClick={() => moveWeek(-1)}>
             前の週
           </button>
@@ -289,15 +305,22 @@ function Calendar() {
         <div className="weekly-grid">
           {weekDates.map((dateItem) => {
             const dateKey = formatDate(dateItem);
+            const isToday = isSameDate(dateItem, today);
             const daySchedules = schedules
               .map((schedule, index) => ({ schedule, index }))
               .filter(({ schedule }) => schedule.date === dateKey);
             const dayTasks = tasks.filter((task) => task.deadline === dateKey);
 
             return (
-              <article className="week-day-card" key={dateKey}>
+              <article
+                className={`week-day-card${isToday ? " today-week-card" : ""}`}
+                key={dateKey}
+              >
                 <div className="week-day-header">
-                  <span>{dayLabels[dateItem.getDay()]}</span>
+                  <div>
+                    <span>{dayLabels[dateItem.getDay()]}</span>
+                    {isToday && <em>今日</em>}
+                  </div>
                   <strong>{formatDisplayDate(dateItem)}</strong>
                 </div>
 

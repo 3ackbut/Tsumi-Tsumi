@@ -8,9 +8,19 @@ function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE");
 }
 
+function formatJapaneseDate(date: Date) {
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  }).format(date);
+}
+
 function Home() {
   const { tasks, schedules, diagnosisResult } = useAppData();
-  const today = formatDate(new Date());
+  const todayDate = new Date();
+  const today = formatDate(todayDate);
   const todayTasks = tasks.filter((task) => task.deadline === today);
   const todaySchedules = schedules.filter(
     (schedule) => schedule.date === today,
@@ -31,6 +41,14 @@ function Home() {
       </section>
 
       <section className="tsumi-focus-panel">
+        <div className="today-status-header">
+          <div>
+            <p className="eyebrow">Today</p>
+            <h2>今日の状況</h2>
+          </div>
+          <time dateTime={today}>{formatJapaneseDate(todayDate)}</time>
+        </div>
+
         <div className="tsumi-focus-content">
           <div>
             <p className="eyebrow">Current Tsumi</p>

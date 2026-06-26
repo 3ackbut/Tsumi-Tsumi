@@ -150,6 +150,24 @@ h3 {
   box-shadow: 0 16px 36px rgba(24, 35, 55, 0.08);
 }
 
+.today-status-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.today-status-header time {
+  padding: 10px 14px;
+  color: #3d6348;
+  background: #eef7f0;
+  border: 1px solid #c9dfcf;
+  border-radius: 999px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
 .tsumi-focus-content {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -757,8 +775,15 @@ input:focus {
 .week-controls {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
   margin-top: 18px;
+}
+
+.week-range {
+  margin-right: auto;
+  color: #3c4350;
+  font-weight: 800;
 }
 
 .week-controls button {
@@ -786,6 +811,12 @@ input:focus {
   border-radius: 8px;
 }
 
+.today-week-card {
+  background: #fffaf0;
+  border-color: #e6b655;
+  box-shadow: 0 10px 24px rgba(230, 182, 85, 0.18);
+}
+
 .week-day-header {
   display: flex;
   align-items: baseline;
@@ -795,8 +826,25 @@ input:focus {
   border-bottom: 1px solid #e4e8ef;
 }
 
+.week-day-header div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
 .week-day-header span {
   color: #54735f;
+  font-weight: 900;
+}
+
+.week-day-header em {
+  padding: 3px 7px;
+  color: #77510b;
+  background: #fff1c7;
+  border-radius: 999px;
+  font-size: 11px;
+  font-style: normal;
   font-weight: 900;
 }
 
@@ -961,8 +1009,19 @@ input:focus {
 
   .page-header,
   .section-heading,
+  .today-status-header,
   .status-hero {
     display: grid;
+  }
+
+  .today-status-header time {
+    width: fit-content;
+    white-space: normal;
+  }
+
+  .week-range {
+    width: 100%;
+    margin-right: 0;
   }
 
   .stats-grid,
