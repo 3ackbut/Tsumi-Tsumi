@@ -9,6 +9,7 @@ import {
 
 type TaskTab = "incomplete" | "completed";
 
+// 表示用のタスクには元の配列indexも持たせる。並び替え後でも正しいタスクを操作するため。
 interface DisplayTask {
   task: Task;
   index: number;
@@ -37,15 +38,19 @@ function Tasks() {
     deleteTask,
     toggleTaskCompleted,
   } = useAppData();
+  // 入力欄の値はuseStateで管理する。入力のたびに画面の値とStateを同じ状態にするため。
   const [name, setName] = useState("");
   const [deadline, setDeadline] = useState("");
   const [estimatedMinutes, setEstimatedMinutes] = useState(30);
   const [importance, setImportance] = useState(3);
   const [errorMessage, setErrorMessage] = useState("");
+  // nullなら追加中、数値ならそのindexのタスクを編集中としてフォームの動きを切り替える。
   const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
+  // タブの選択状態も画面の状態なのでuseStateで持つ。初期表示は未完了タスクにする。
   const [activeTab, setActiveTab] = useState<TaskTab>("incomplete");
   const incompleteTaskCount = tasks.filter((task) => !task.completed).length;
   const completedTaskCount = tasks.length - incompleteTaskCount;
+  // mapで自動優先度を足し、filterでタブに合うタスクだけに絞り、sortで表示順を整える。
   const displayTasks: DisplayTask[] = tasks
     .map((task, index) => ({
       task,
@@ -57,9 +62,11 @@ function Tasks() {
     )
     .sort((firstTask, secondTask) => {
       if (activeTab === "completed") {
+        // 完了タスクは振り返りやすさを優先し、締切が近い順に並べる。
         return compareDeadline(firstTask.task.deadline, secondTask.task.deadline);
       }
 
+      // 未完了タスクは、今取りかかる順番が分かるよう自動優先度を優先して並べる。
       const priorityDiff =
         priorityOrder[firstTask.autoPriority.level] -
         priorityOrder[secondTask.autoPriority.level];
@@ -68,6 +75,7 @@ function Tasks() {
         return priorityDiff;
       }
 
+      // 優先度が同じ場合は締切が近いものを上にして、見落としを防ぐ。
       return compareDeadline(firstTask.task.deadline, secondTask.task.deadline);
     });
 
@@ -81,6 +89,7 @@ function Tasks() {
   };
 
   const saveTask = () => {
+    // 入力不足のまま保存すると一覧で意味が分からなくなるため、最低限の項目を確認する。
     if (name.trim() === "" || deadline === "") {
       setErrorMessage("タスク名と締切を入力してください。");
       return;
@@ -91,10 +100,12 @@ function Tasks() {
       deadline,
       estimatedMinutes,
       importance,
+      // 編集時は完了状態を引き継ぎ、内容を直しただけで未完了に戻らないようにする。
       completed:
         editingTaskIndex === null ? false : tasks[editingTaskIndex].completed,
     };
 
+    // editingTaskIndexがnullなら追加、数値なら既存タスクの更新として扱う。
     if (editingTaskIndex === null) {
       addTask(task);
     } else {
@@ -105,6 +116,7 @@ function Tasks() {
   };
 
   const startEditTask = (index: number) => {
+    // 編集ボタンを押したタスクの値をフォームに戻し、同じ入力欄で修正できるようにする。
     const task = tasks[index];
     setName(task.name);
     setDeadline(task.deadline);
@@ -115,6 +127,7 @@ function Tasks() {
   };
 
   const handleDeleteTask = (index: number) => {
+    // 編集中のタスクを削除した場合でもフォームに古い値が残らないようリセットする。
     deleteTask(index);
     resetForm();
   };

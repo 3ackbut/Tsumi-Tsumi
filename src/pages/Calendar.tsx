@@ -23,6 +23,7 @@ function formatJapaneseDate(date: Date) {
 }
 
 function getStartOfWeek(date: Date) {
+  // 週間表示は日曜始まりにそろえる。どの日に開いても同じ週の7日分を表示するため。
   const startOfWeek = new Date(date);
   startOfWeek.setHours(0, 0, 0, 0);
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
@@ -77,13 +78,16 @@ function Calendar() {
     number | null
   >(null);
   const today = new Date();
+  // 週の開始日をStateで持つことで、「前の週」「次の週」ボタンで表示週を切り替えられる。
   const [weekStartDate, setWeekStartDate] = useState(() =>
     getStartOfWeek(today),
   );
+  // 週の開始日から7日分のDateを作り、週間カレンダーの列として表示する。
   const weekDates = Array.from({ length: 7 }, (_, index) =>
     addDays(weekStartDate, index),
   );
   const weekEndDate = addDays(weekStartDate, 6);
+  // 未来の日付を基準日に渡し、未完了タスクが残った場合の締切超過を予測に反映する。
   const forecastTargets = [
     { label: "今日", date: today },
     { label: "1日後", date: addDays(today, 1) },
@@ -92,6 +96,7 @@ function Calendar() {
   ];
   const forecastItems = forecastTargets.map((forecastTarget) => ({
     ...forecastTarget,
+    // Calendarでは予測対象日を基準日に渡し、締切が近づく・過ぎる変化を反映する。
     tsumiScore: calculateTsumiScore(
       tasks,
       diagnosisResult,
@@ -156,12 +161,14 @@ function Calendar() {
   };
 
   const moveWeek = (weekOffset: number) => {
+    // 現在表示中の週開始日に7日単位で足し引きし、前後の週へ移動する。
     setWeekStartDate((currentWeekStartDate) =>
       addDays(currentWeekStartDate, weekOffset * 7),
     );
   };
 
   const moveToThisWeek = () => {
+    // 今日を含む週に戻すため、現在日時から週の開始日を計算し直す。
     setWeekStartDate(getStartOfWeek(new Date()));
   };
 
@@ -305,6 +312,8 @@ function Calendar() {
         <div className="weekly-grid">
           {weekDates.map((dateItem) => {
             const dateKey = formatDate(dateItem);
+            // 予定とタスクは日付文字列で保存しているため、表示用Dateを保存形式に変換して照合する。
+            // 今日だけ背景とバッジを変え、ユーザーが現在日をすぐ見つけられるようにする。
             const isToday = isSameDate(dateItem, today);
             const daySchedules = schedules
               .map((schedule, index) => ({ schedule, index }))

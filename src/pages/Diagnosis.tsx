@@ -120,6 +120,7 @@ const diagnosisDetails: Record<
 };
 
 function buildDiagnosisResult(answers: DiagnosisType[]): DiagnosisResult {
+  // 回答ごとに対応するタイプへ1点ずつ加算し、一番多いタイプを診断結果にする。
   const scores = answers.reduce<Record<DiagnosisType, number>>(
     (currentScores, answer) => ({
       ...currentScores,
@@ -133,6 +134,7 @@ function buildDiagnosisResult(answers: DiagnosisType[]): DiagnosisResult {
     },
   );
 
+  // Object.keysは文字列配列として扱われるため、TypeScriptに診断タイプの配列だと伝える。
   const resultType = (Object.keys(scores) as DiagnosisType[]).reduce(
     (highestType, type) =>
       scores[type] > scores[highestType] ? type : highestType,
@@ -162,9 +164,11 @@ function formatDiagnosedAt(value: string) {
 function Diagnosis() {
   const { diagnosisResult, saveDiagnosisResult, resetDiagnosisResult } =
     useAppData();
+  // answersは「何問目にどのタイプを選んだか」を保持する配列。未回答の質問はundefinedになる。
   const [answers, setAnswers] = useState<DiagnosisType[]>([]);
 
   const selectAnswer = (questionIndex: number, value: DiagnosisType) => {
+    // 配列を直接変更せずコピーしてから更新すると、Reactが回答変更を検知できる。
     setAnswers((currentAnswers) => {
       const nextAnswers = [...currentAnswers];
       nextAnswers[questionIndex] = value;
@@ -172,6 +176,7 @@ function Diagnosis() {
     });
   };
 
+  // filterで回答済みの質問だけ数え、保存ボタンを押せる状態か判断する。
   const answeredCount = questions.filter(
     (_, questionIndex) => answers[questionIndex] !== undefined,
   ).length;
@@ -182,10 +187,12 @@ function Diagnosis() {
       return;
     }
 
+    // 診断結果をContextに保存すると、Home画面や優先度判定でも同じ結果を使える。
     saveDiagnosisResult(buildDiagnosisResult(answers));
   };
 
   const restartDiagnosis = () => {
+    // 再診断では保存済み結果と画面上の回答を両方消し、最初から回答できる状態に戻す。
     resetDiagnosisResult();
     setAnswers([]);
   };
