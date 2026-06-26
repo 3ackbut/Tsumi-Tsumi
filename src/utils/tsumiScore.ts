@@ -1,3 +1,21 @@
+/*
+ * ファイル名: tsumiScore.ts
+ * 作成者: やわらか背骨チャンネル
+ * 初版作成日: 2026年6月23日
+ * 最終更新日: 2026年6月26日
+ *
+ * 概要:
+ * 未完了タスクをもとに、危険度としてのつみ度を計算する。
+ * 重要度、自動優先度、締切、見積時間を使い、Home・Status・Calendarで使う結果を返す。
+ *
+ * 変更履歴:
+ * 2026年6月23日  未完了タスクをもとにしたつみ度計算を追加
+ * 2026年6月23日  100%に到達しにくい段階的な計算へ調整
+ * 2026年6月23日  Calendarの推定つみ度用に基準日指定へ対応
+ * 2026年6月26日  コード規約に沿ったコメントを追加
+ * 2026年6月26日  ソースコードヘッダを追加
+ */
+
 import type { DiagnosisResult } from "../types/diagnosis";
 import type { Task } from "../types/task";
 import { judgeAutoPriority, type AutoPriorityLevel } from "./taskPriority";
