@@ -2,7 +2,7 @@
  * ファイル名: Calendar.tsx
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月15日
- * 最終更新日: 2026年6月30日
+ * 最終更新日: 2026年7月2日
  *
  * 概要:
  * 予定の追加・編集・削除と、週間カレンダー表示を行う画面。
@@ -16,9 +16,10 @@
  * 2026年6月26日  コード規約に沿ったコメントを追加
  * 2026年6月26日  ソースコードヘッダを追加
  * 2026年6月30日  Issue #48 予定削除前の確認メッセージを追加
+ * 2026年7月2日  Issue #47 予定編集時に編集フォームへ移動する処理を追加
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
 import type { Schedule } from "../types/schedule";
@@ -97,6 +98,7 @@ function Calendar() {
   const [editingScheduleIndex, setEditingScheduleIndex] = useState<
     number | null
   >(null);
+  const formSectionRef = useRef<HTMLElement | null>(null);
   const today = new Date();
   // 週の開始日をStateで持つことで、「前の週」「次の週」ボタンで表示週を切り替えられる。
   const [weekStartDate, setWeekStartDate] = useState(() =>
@@ -173,6 +175,10 @@ function Calendar() {
     setEndTime(schedule.endTime);
     setEditingScheduleIndex(index);
     setErrorMessage("");
+    formSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   const handleDeleteSchedule = (index: number) => {
@@ -211,7 +217,7 @@ function Calendar() {
         </Link>
       </div>
 
-      <section className="panel">
+      <section className="panel" ref={formSectionRef}>
         <div className="section-heading">
           <div>
             <p className="eyebrow">Add</p>
