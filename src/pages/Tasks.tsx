@@ -16,6 +16,7 @@
  * 2026年6月26日  コード規約に沿ったコメントを追加
  * 2026年6月26日  ソースコードヘッダを追加
  * 2026年7月2日  Issue #27 タスク追加・編集時の入力チェックを追加
+ * 2026年7月2日  Issue #42 自動優先度表示を改善
  */
 
 import { useState } from "react";
@@ -290,6 +291,12 @@ function Tasks() {
           </button>
         </div>
 
+        {activeTab === "incomplete" && (
+          <p className="muted-text priority-help-text">
+            自動優先度は、締切・入力した重要度・見積時間・診断結果をもとに判定しています。
+          </p>
+        )}
+
         {displayTasks.length === 0 ? (
           <div className="empty-state">
             <strong>
@@ -326,18 +333,19 @@ function Tasks() {
                       <strong>{task.name}</strong>
                       <p>
                         締切: {task.deadline} / 見積: {task.estimatedMinutes}分 /
-                        重要度: {task.importance}
+                        入力した重要度: {task.importance}
                       </p>
-                      <div className="auto-priority-box">
-                        <span>TsumiTsumi判定</span>
-                        <strong>
-                          優先度:
+                      <div
+                        className={`auto-priority-box auto-priority-${autoPriority.level}`}
+                      >
+                        <div className="auto-priority-header">
+                          <span>アプリ判定の自動優先度</span>
                           <span
                             className={`priority-badge priority-${autoPriority.level}`}
                           >
                             {autoPriority.level}
                           </span>
-                        </strong>
+                        </div>
                         <p>理由: {autoPriority.reason}</p>
                       </div>
                     </div>
