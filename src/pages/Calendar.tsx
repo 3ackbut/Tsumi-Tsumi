@@ -2,7 +2,7 @@
  * ファイル名: Calendar.tsx
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月15日
- * 最終更新日: 2026年6月26日
+ * 最終更新日: 2026年6月30日
  *
  * 概要:
  * 予定の追加・編集・削除と、週間カレンダー表示を行う画面。
@@ -15,6 +15,7 @@
  * 2026年6月26日  今日の日付強調表示を追加
  * 2026年6月26日  コード規約に沿ったコメントを追加
  * 2026年6月26日  ソースコードヘッダを追加
+ * 2026年6月30日  Issue #48 予定削除前の確認メッセージを追加
  */
 
 import { useState } from "react";
@@ -175,6 +176,10 @@ function Calendar() {
   };
 
   const handleDeleteSchedule = (index: number) => {
+    if (!window.confirm("この予定を削除しますか？")) {
+      return;
+    }
+
     deleteSchedule(index);
     resetForm();
   };
