@@ -2,7 +2,7 @@
  * ファイル名: Tasks.tsx
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月15日
- * 最終更新日: 2026年6月26日
+ * 最終更新日: 2026年7月2日
  *
  * 概要:
  * タスクの追加、編集、削除、完了状態の切り替えを行う画面。
@@ -15,6 +15,7 @@
  * 2026年6月23日  未完了・完了タブと優先度順表示を追加
  * 2026年6月26日  コード規約に沿ったコメントを追加
  * 2026年6月26日  ソースコードヘッダを追加
+ * 2026年7月2日  Issue #27 タスク追加・編集時の入力チェックを追加
  */
 
 import { useState } from "react";
@@ -60,8 +61,8 @@ function Tasks() {
   // 入力欄の値はuseStateで管理する。入力のたびに画面の値とStateを同じ状態にするため。
   const [name, setName] = useState("");
   const [deadline, setDeadline] = useState("");
-  const [estimatedMinutes, setEstimatedMinutes] = useState(30);
-  const [importance, setImportance] = useState(3);
+  const [estimatedMinutes, setEstimatedMinutes] = useState("30");
+  const [importance, setImportance] = useState("3");
   const [errorMessage, setErrorMessage] = useState("");
   // nullなら追加中、数値ならそのindexのタスクを編集中としてフォームの動きを切り替える。
   const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
@@ -101,24 +102,48 @@ function Tasks() {
   const resetForm = () => {
     setName("");
     setDeadline("");
-    setEstimatedMinutes(30);
-    setImportance(3);
+    setEstimatedMinutes("30");
+    setImportance("3");
     setErrorMessage("");
     setEditingTaskIndex(null);
   };
 
   const saveTask = () => {
-    // 入力不足のまま保存すると一覧で意味が分からなくなるため、最低限の項目を確認する。
-    if (name.trim() === "" || deadline === "") {
-      setErrorMessage("タスク名と締切を入力してください。");
+    const trimmedName = name.trim();
+    const estimatedMinutesValue = Number(estimatedMinutes);
+    const importanceValue = Number(importance);
+
+    // 入力不足や不自然な値のまま保存すると一覧で意味が分からなくなるため、項目ごとに確認する。
+    if (trimmedName === "") {
+      setErrorMessage("タスク名を入力してください");
+      return;
+    }
+
+    if (deadline === "") {
+      setErrorMessage("締切日を入力してください");
+      return;
+    }
+
+    if (estimatedMinutes === "") {
+      setErrorMessage("見積時間を入力してください");
+      return;
+    }
+
+    if (estimatedMinutesValue <= 0) {
+      setErrorMessage("見積時間は1分以上にしてください");
+      return;
+    }
+
+    if (importance === "") {
+      setErrorMessage("重要度を選択してください");
       return;
     }
 
     const task: Task = {
-      name: name.trim(),
+      name: trimmedName,
       deadline,
-      estimatedMinutes,
-      importance,
+      estimatedMinutes: estimatedMinutesValue,
+      importance: importanceValue,
       // 編集時は完了状態を引き継ぎ、内容を直しただけで未完了に戻らないようにする。
       completed:
         editingTaskIndex === null ? false : tasks[editingTaskIndex].completed,
@@ -139,8 +164,8 @@ function Tasks() {
     const task = tasks[index];
     setName(task.name);
     setDeadline(task.deadline);
-    setEstimatedMinutes(task.estimatedMinutes);
-    setImportance(task.importance);
+    setEstimatedMinutes(String(task.estimatedMinutes));
+    setImportance(String(task.importance));
     setEditingTaskIndex(index);
     setErrorMessage("");
   };
@@ -200,9 +225,7 @@ function Tasks() {
               type="number"
               min="1"
               value={estimatedMinutes}
-              onInput={(event) =>
-                setEstimatedMinutes(Number(event.currentTarget.value))
-              }
+              onInput={(event) => setEstimatedMinutes(event.currentTarget.value)}
             />
           </label>
 
@@ -213,9 +236,7 @@ function Tasks() {
               min="1"
               max="5"
               value={importance}
-              onInput={(event) =>
-                setImportance(Number(event.currentTarget.value))
-              }
+              onInput={(event) => setImportance(event.currentTarget.value)}
             />
           </label>
         </div>
