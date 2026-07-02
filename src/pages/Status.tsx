@@ -2,7 +2,7 @@
  * ファイル名: Status.tsx
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月15日
- * 最終更新日: 2026年6月26日
+ * 最終更新日: 2026年7月2日
  *
  * 概要:
  * タスクの完了状況とつみ度を確認する画面。
@@ -14,11 +14,46 @@
  * 2026年6月23日  つみ度を未完了タスクの危険度として表示
  * 2026年6月23日  つみ度の理由と影響タスク表示を追加
  * 2026年6月26日  ソースコードヘッダを追加
+ * 2026年7月2日  Issue #39 つみ度情報の表示を整理
+ * 2026年7月2日  Issue #39 つみ度カードの状態ラベル表示を調整
+ * 2026年7月2日  Issue #39 つみ度ゲージ色を状態別に調整
  */
 
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
 import { calculateTsumiScore } from "../utils/tsumiScore";
+
+function getStatusLabel(score: number) {
+  if (score >= 81) {
+    return "危険";
+  }
+
+  if (score >= 61) {
+    return "注意";
+  }
+
+  if (score >= 31) {
+    return "少し積み気味";
+  }
+
+  return "余裕あり";
+}
+
+function getStatusLevel(score: number) {
+  if (score >= 81) {
+    return "danger";
+  }
+
+  if (score >= 61) {
+    return "warning";
+  }
+
+  if (score >= 31) {
+    return "stacked";
+  }
+
+  return "relaxed";
+}
 
 function Status() {
   const { tasks, diagnosisResult } = useAppData();
@@ -30,6 +65,8 @@ function Status() {
     .filter((task) => !task.completed)
     .reduce((total, task) => total + task.estimatedMinutes, 0);
   const tsumiScore = calculateTsumiScore(tasks, diagnosisResult);
+  const statusLabel = getStatusLabel(tsumiScore.score);
+  const statusLevel = getStatusLevel(tsumiScore.score);
 
   return (
     <main className="page">
@@ -48,20 +85,32 @@ function Status() {
 
       <section className="panel">
         <div className="status-hero">
-          <div>
+          <div className="status-score-card">
             <p className="eyebrow">Tsumi Score</p>
             <strong>{tsumiScore.score}%</strong>
-            <span className="tsumi-label">{tsumiScore.label}</span>
+            <span className="tsumi-label">{statusLabel}</span>
+            <div
+              className={`meter meter-${statusLevel}`}
+              aria-label={`つみ度 ${tsumiScore.score}%`}
+            >
+              <span style={{ width: `${tsumiScore.score}%` }} />
+            </div>
+            <p>{tsumiScore.message}</p>
+            <p className="muted-text">
+              つみ度は、未完了タスク・締切・重要度・見積時間をもとに計算しています。高いほど注意が必要です。
+            </p>
           </div>
-          <p>{tsumiScore.message}</p>
-        </div>
-
-        <div className="meter" aria-label={`つみ度 ${tsumiScore.score}%`}>
-          <span style={{ width: `${tsumiScore.score}%` }} />
         </div>
       </section>
 
       <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Progress</p>
+            <h2>タスクの進み具合</h2>
+          </div>
+        </div>
+
         <div className="stats-grid">
           <div className="stat-card">
             <span>完了数</span>
@@ -120,12 +169,16 @@ function Status() {
                 <div>
                   <strong>{task.name}</strong>
                   <p>
-                    締切: {task.deadline} / 重要度: {task.importance}
+                    締切: {task.deadline} / 入力した重要度: {task.importance} /
+                    見積: {task.estimatedMinutes}分
                   </p>
                 </div>
-                <span className={`priority-badge priority-${autoPriorityLevel}`}>
-                  優先度: {autoPriorityLevel}
-                </span>
+                <div className="impact-priority">
+                  <span>自動優先度</span>
+                  <strong className={`priority-badge priority-${autoPriorityLevel}`}>
+                    {autoPriorityLevel}
+                  </strong>
+                </div>
               </li>
             ))}
           </ul>

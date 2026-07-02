@@ -673,41 +673,57 @@ input:focus {
 }
 
 .status-hero {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  display: grid;
+  justify-items: center;
+}
+
+.status-score-card {
+  width: min(100%, 680px);
+  padding: 28px;
+  text-align: center;
+  background: #f8fafc;
+  border: 1px solid #e4e8ef;
+  border-radius: 8px;
 }
 
 .status-hero strong {
   display: block;
   margin-top: 6px;
   color: #151923;
-  font-size: clamp(56px, 12vw, 96px);
+  font-size: clamp(72px, 14vw, 120px);
   line-height: 1;
 }
 
 .tsumi-label {
   display: inline-flex;
-  margin-top: 10px;
-  padding: 6px 12px;
+  margin-top: 8px;
+  padding: 7px 14px;
   color: #3d6348;
   background: #eef7f0;
   border: 1px solid #c9dfcf;
   border-radius: 999px;
+  font-size: 15px;
   font-weight: 900;
 }
 
-.status-hero p {
-  max-width: 460px;
+.status-score-card p:not(.eyebrow) {
+  max-width: 520px;
+  margin: 16px auto 0;
   color: #3c4350;
-  font-size: 18px;
-  line-height: 1.7;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.status-score-card p.muted-text {
+  font-size: 14px;
 }
 
 .meter {
   height: 16px;
-  margin-top: 22px;
+  width: 100%;
+  margin-top: 20px;
+  margin-right: auto;
+  margin-left: auto;
   overflow: hidden;
   background: #e9edf3;
   border-radius: 999px;
@@ -716,8 +732,23 @@ input:focus {
 .meter span {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #75a082, #e6b655);
   border-radius: inherit;
+}
+
+.meter-relaxed span {
+  background: #75a082;
+}
+
+.meter-stacked span {
+  background: #d7bd4e;
+}
+
+.meter-warning span {
+  background: #df9143;
+}
+
+.meter-danger span {
+  background: #d96868;
 }
 
 .reason-list,
@@ -933,9 +964,9 @@ input:focus {
 }
 
 .impact-task-list li {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 14px;
   padding: 16px;
   background: #f8fafc;
@@ -950,6 +981,19 @@ input:focus {
 .impact-task-list p {
   margin-top: 6px;
   color: #687182;
+  line-height: 1.5;
+}
+
+.impact-priority {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+
+.impact-priority > span {
+  color: #687182;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .choice-row {
