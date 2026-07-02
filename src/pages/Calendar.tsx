@@ -17,6 +17,7 @@
  * 2026年6月26日  ソースコードヘッダを追加
  * 2026年6月30日  Issue #48 予定削除前の確認メッセージを追加
  * 2026年7月2日  Issue #47 予定編集時に編集フォームへ移動する処理を追加
+ * 2026年7月2日  Issue #38 予定追加・編集時の入力チェックを追加
  */
 
 import { useRef, useState } from "react";
@@ -136,23 +137,35 @@ function Calendar() {
   };
 
   const saveSchedule = () => {
-    if (
-      title.trim() === "" ||
-      date === "" ||
-      startTime === "" ||
-      endTime === ""
-    ) {
-      setErrorMessage("予定名、日付、開始時刻、終了時刻を入力してください。");
+    const trimmedTitle = title.trim();
+
+    if (trimmedTitle === "") {
+      setErrorMessage("予定名を入力してください");
+      return;
+    }
+
+    if (date === "") {
+      setErrorMessage("日付を入力してください");
+      return;
+    }
+
+    if (startTime === "") {
+      setErrorMessage("開始時刻を入力してください");
+      return;
+    }
+
+    if (endTime === "") {
+      setErrorMessage("終了時刻を入力してください");
       return;
     }
 
     if (startTime >= endTime) {
-      setErrorMessage("終了時刻は開始時刻より後にしてください。");
+      setErrorMessage("終了時刻は開始時刻より後にしてください");
       return;
     }
 
     const schedule: Schedule = {
-      title: title.trim(),
+      title: trimmedTitle,
       date,
       startTime,
       endTime,
