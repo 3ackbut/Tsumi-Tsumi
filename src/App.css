@@ -1031,6 +1031,16 @@ input:focus {
   background: #2f6b3f;
 }
 
+.diagnosis-guide {
+  display: grid;
+  gap: 10px;
+}
+
+.diagnosis-guide p:not(.eyebrow) {
+  color: #3c4350;
+  line-height: 1.7;
+}
+
 .result-box {
   display: grid;
   gap: 12px;
