@@ -152,7 +152,7 @@ function Home() {
 
         <div className="menu-grid">
           <Link className="menu-card" to="/tasks">
-            <span>タスク確認</span>
+            <span>タスク管理</span>
             <p>追加、削除、完了切り替え</p>
           </Link>
           <Link className="menu-card" to="/calendar">
