@@ -13,6 +13,7 @@
  * 2026年6月23日  性格診断結果の保存と表示を追加
  * 2026年6月26日  コード規約に沿ったコメントを追加
  * 2026年6月26日  ソースコードヘッダを追加
+ * 2026年7月3日  Issue #41 診断の目的と結果の使われ方の説明を追加
  */
 
 import { useState } from "react";
@@ -228,6 +229,14 @@ function Diagnosis() {
           ホームへ
         </Link>
       </div>
+
+      <section className="panel diagnosis-guide">
+        <p className="eyebrow">About Diagnosis</p>
+        <h2>診断で分かること</h2>
+        <p>
+          この診断では、あなたのタスクの進め方のタイプを確認できます。診断結果は、Home画面やStatus画面のアドバイスに反映され、自分に合ったタスクの進め方を見つける参考になります。
+        </p>
+      </section>
 
       {diagnosisResult !== null ? (
         <section className="panel">
