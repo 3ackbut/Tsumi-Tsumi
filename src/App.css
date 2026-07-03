@@ -674,16 +674,39 @@ input:focus {
 
 .status-hero {
   display: grid;
+  gap: 16px;
   justify-items: center;
 }
 
-.status-score-card {
+.status-score-card,
+.personal-advice-card {
   width: min(100%, 680px);
   padding: 28px;
-  text-align: center;
   background: #f8fafc;
   border: 1px solid #e4e8ef;
   border-radius: 8px;
+}
+
+.status-score-card {
+  text-align: center;
+}
+
+.personal-advice-card {
+  display: grid;
+  gap: 12px;
+}
+
+.personal-advice-card h2 {
+  font-size: 22px;
+}
+
+.personal-advice-card .status-pill {
+  width: fit-content;
+}
+
+.personal-advice-card p:not(.eyebrow) {
+  color: #3c4350;
+  line-height: 1.7;
 }
 
 .status-hero strong {

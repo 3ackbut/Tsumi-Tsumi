@@ -17,10 +17,12 @@
  * 2026年7月2日  Issue #39 つみ度情報の表示を整理
  * 2026年7月2日  Issue #39 つみ度カードの状態ラベル表示を調整
  * 2026年7月2日  Issue #39 つみ度ゲージ色を状態別に調整
+ * 2026年7月3日  Issue #31 診断結果に合わせた進め方カードを追加
  */
 
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
+import type { DiagnosisResult } from "../types/diagnosis";
 import { calculateTsumiScore } from "../utils/tsumiScore";
 
 function getStatusLabel(score: number) {
@@ -55,6 +57,58 @@ function getStatusLevel(score: number) {
   return "relaxed";
 }
 
+function getPersonalizedAdvice(
+  diagnosisResult: DiagnosisResult | null,
+  score: number,
+) {
+  const isHigh = score >= 50;
+
+  if (diagnosisResult === null) {
+    return {
+      typeName: "未診断",
+      advice:
+        "診断を行うと、あなたの進め方に合わせたアドバイスが表示されます。",
+    };
+  }
+
+  switch (diagnosisResult.typeName) {
+    case "計画型":
+      return {
+        typeName: diagnosisResult.typeName,
+        advice: isHigh
+          ? "計画を立てて進めやすいタイプです。つみ度が高めなので、今日やるタスクを小さく分けて、締切が近いものから予定に入れていきましょう。"
+          : "計画を立てて進めやすいタイプです。つみ度が上がる前に、今日やるタスクを小さく分けて予定に入れておくと安定して進められます。",
+      };
+    case "締切集中型":
+      return {
+        typeName: diagnosisResult.typeName,
+        advice: isHigh
+          ? "締切が近いほど集中しやすいタイプです。つみ度が高めなので、短時間で終わるタスクから先に片付けて、締切前の負担を減らしましょう。"
+          : "締切が近いほど集中しやすいタイプです。つみ度が上がりすぎる前に、短時間で終わるタスクから先に片付けると負担を減らせます。",
+      };
+    case "気分変動型":
+      return {
+        typeName: diagnosisResult.typeName,
+        advice: isHigh
+          ? "その日の気分や調子に左右されやすいタイプです。つみ度が高い日は、重いタスクよりも始めやすいタスクから取りかかるのがおすすめです。"
+          : "その日の気分や調子に左右されやすいタイプです。つみ度が低いうちは、気分が軽いタスクを先に進めておくと流れを作りやすくなります。",
+      };
+    case "コツコツ型":
+      return {
+        typeName: diagnosisResult.typeName,
+        advice: isHigh
+          ? "少しずつ積み上げるのが得意なタイプです。つみ度が高めなので、タスクをさらに小さく分けて、今すぐ進められる一歩から減らしていきましょう。"
+          : "少しずつ積み上げるのが得意なタイプです。つみ度が低いうちに、毎日少しだけ進めるタスクを決めておくと安定して進められます。",
+      };
+    default:
+      return {
+        typeName: diagnosisResult.typeName,
+        advice:
+          "診断結果をもとに、今のつみ度に合わせて無理なく進められるタスクから取りかかりましょう。",
+      };
+  }
+}
+
 function Status() {
   const { tasks, diagnosisResult } = useAppData();
   const completedCount = tasks.filter((task) => task.completed).length;
@@ -67,6 +121,10 @@ function Status() {
   const tsumiScore = calculateTsumiScore(tasks, diagnosisResult);
   const statusLabel = getStatusLabel(tsumiScore.score);
   const statusLevel = getStatusLevel(tsumiScore.score);
+  const personalizedAdvice = getPersonalizedAdvice(
+    diagnosisResult,
+    tsumiScore.score,
+  );
 
   return (
     <main className="page">
@@ -99,6 +157,12 @@ function Status() {
             <p className="muted-text">
               つみ度は、未完了タスク・締切・重要度・見積時間をもとに計算しています。高いほど注意が必要です。
             </p>
+          </div>
+          <div className="personal-advice-card">
+            <p className="eyebrow">Your Style</p>
+            <h2>あなたに合った進め方</h2>
+            <span className="status-pill">{personalizedAdvice.typeName}</span>
+            <p>{personalizedAdvice.advice}</p>
           </div>
         </div>
       </section>
