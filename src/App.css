@@ -1214,11 +1214,33 @@ input:focus {
     justify-content: flex-start;
   }
 
+  .check-button {
+    width: 42px;
+    height: 42px;
+  }
+
+  .task-main > div {
+    min-width: 0;
+  }
+
+  .task-main p,
+  .auto-priority-box p,
+  .impact-task-list p,
+  .week-item strong {
+    overflow-wrap: anywhere;
+  }
+
   .task-actions button,
+  .inline-actions button,
   .primary-button,
+  .secondary-button,
   .choice-button,
   .tab-button {
     width: 100%;
+  }
+
+  .week-controls button {
+    min-height: 42px;
   }
 
   .tab-list {
