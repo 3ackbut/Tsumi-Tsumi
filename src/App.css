@@ -335,6 +335,23 @@ h3 {
   line-height: 1.6;
 }
 
+.reset-data-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.reset-data-panel p:not(.eyebrow) {
+  margin-top: 8px;
+  color: #687182;
+  line-height: 1.7;
+}
+
+.reset-data-panel .danger-button {
+  flex: 0 0 auto;
+}
+
 .two-column,
 .day-content {
   display: grid;
@@ -1167,7 +1184,8 @@ input:focus {
   .page-header,
   .section-heading,
   .today-status-header,
-  .status-hero {
+  .status-hero,
+  .reset-data-panel {
     display: grid;
   }
 
@@ -1232,6 +1250,7 @@ input:focus {
 
   .task-actions button,
   .inline-actions button,
+  .reset-data-panel .danger-button,
   .primary-button,
   .secondary-button,
   .choice-button,

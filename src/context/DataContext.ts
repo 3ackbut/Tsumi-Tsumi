@@ -12,6 +12,7 @@
  * 2026年6月23日  タスクと予定を共有するContext型を作成
  * 2026年6月23日  診断結果の共有項目を追加
  * 2026年6月26日  ソースコードヘッダを追加
+ * 2026年7月7日  Issue #32 アプリ保存データのリセット関数を追加
  */
 
 import { createContext } from "react";
@@ -32,6 +33,7 @@ export interface AppDataContextValue {
   deleteSchedule: (index: number) => void;
   saveDiagnosisResult: (result: DiagnosisResult) => void;
   resetDiagnosisResult: () => void;
+  resetAppData: () => void;
 }
 
 export const AppDataContext = createContext<AppDataContextValue | undefined>(
