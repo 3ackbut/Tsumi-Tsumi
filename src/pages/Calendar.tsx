@@ -20,9 +20,10 @@
  * 2026年7月2日  Issue #38 予定追加・編集時の入力チェックを追加
  * 2026年7月8日  Issue #30 週間カレンダーの見た目を調整
  * 2026年7月8日  Issue #43 入力エラーメッセージの文言を統一
+ * 2026年7月8日  編集時にページ上部へスクロールする処理へ変更
  */
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppData } from "../hooks/useAppData";
 import type { Schedule } from "../types/schedule";
@@ -109,7 +110,6 @@ function Calendar() {
   const [editingScheduleIndex, setEditingScheduleIndex] = useState<
     number | null
   >(null);
-  const formSectionRef = useRef<HTMLElement | null>(null);
   const today = new Date();
   // 週の開始日をStateで持つことで、「前の週」「次の週」ボタンで表示週を切り替えられる。
   const [weekStartDate, setWeekStartDate] = useState(() =>
@@ -198,10 +198,7 @@ function Calendar() {
     setEndTime(schedule.endTime);
     setEditingScheduleIndex(index);
     setErrorMessage("");
-    formSectionRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDeleteSchedule = (index: number) => {
@@ -240,7 +237,7 @@ function Calendar() {
         </Link>
       </div>
 
-      <section className="panel" ref={formSectionRef}>
+      <section className="panel">
         <div className="section-heading">
           <div>
             <p className="eyebrow">Add</p>

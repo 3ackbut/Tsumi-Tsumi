@@ -19,6 +19,7 @@
  * 2026年7月2日  Issue #42 自動優先度表示を改善
  * 2026年7月8日  Issue #28 タスク操作をid基準に変更
  * 2026年7月8日  Issue #43 入力エラーメッセージの文言を統一
+ * 2026年7月8日  編集時にページ上部へスクロールする処理を追加
  */
 
 import { useState } from "react";
@@ -180,6 +181,7 @@ function Tasks() {
     setImportance(String(task.importance));
     setEditingTaskId(task.id);
     setErrorMessage("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDeleteTask = (id: string) => {
