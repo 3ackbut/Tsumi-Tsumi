@@ -2,7 +2,7 @@
  * ファイル名: sampleData.ts
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月23日
- * 最終更新日: 2026年6月26日
+ * 最終更新日: 2026年7月8日
  *
  * 概要:
  * 初回表示やlocalStorage復旧時に使うサンプルデータを定義する。
@@ -12,6 +12,8 @@
  * 2026年6月23日  提出デモ用のサンプルタスク・予定を追加
  * 2026年6月23日  診断結果を用いた優先度判定に合わせてサンプルタスクを調整
  * 2026年6月26日  ソースコードヘッダを追加
+ * 2026年7月8日   Issue #33 提出・発表用に初期サンプルデータを整理
+ * 2026年7月8日   Issue #33 発表時期に合わせてサンプル日付を2026年8月へ変更
  */
 
 import type { Schedule } from "../types/schedule";
@@ -19,58 +21,72 @@ import type { Task } from "../types/task";
 
 export const sampleTasks: Task[] = [
   {
-    name: "英語課題",
-    deadline: "2026-06-23",
-    estimatedMinutes: 60,
-    importance: 3,
-    completed: false,
-  },
-  {
-    name: "レポート提出",
-    deadline: "2026-06-23",
-    estimatedMinutes: 120,
+    name: "情報システム論レポート提出",
+    deadline: "2026-08-01",
+    estimatedMinutes: 150,
     importance: 5,
     completed: false,
   },
   {
-    name: "発表準備",
-    deadline: "2026-06-24",
-    estimatedMinutes: 90,
+    name: "ゼミ発表スライドの最終確認",
+    deadline: "2026-08-03",
+    estimatedMinutes: 60,
     importance: 4,
-    completed: true,
+    completed: false,
   },
   {
-    name: "設計書の見直し",
-    deadline: "2026-06-25",
+    name: "プログラミング課題のデバッグ",
+    deadline: "2026-08-05",
+    estimatedMinutes: 120,
+    importance: 4,
+    completed: false,
+  },
+  {
+    name: "統計学の復習ノート整理",
+    deadline: "2026-08-08",
     estimatedMinutes: 45,
+    importance: 3,
+    completed: false,
+  },
+  {
+    name: "参考文献リスト作成",
+    deadline: "2026-08-15",
+    estimatedMinutes: 30,
     importance: 2,
     completed: false,
+  },
+  {
+    name: "英語小テストの復習",
+    deadline: "2026-08-12",
+    estimatedMinutes: 30,
+    importance: 2,
+    completed: true,
   },
 ];
 
 export const sampleSchedules: Schedule[] = [
   {
-    title: "ソフトウェア設計",
-    date: "2026-06-23",
-    startTime: "14:40",
-    endTime: "16:10",
+    title: "ゼミミーティング",
+    date: "2026-08-01",
+    startTime: "10:30",
+    endTime: "11:30",
   },
   {
     title: "家庭教師",
-    date: "2026-06-23",
+    date: "2026-08-02",
     startTime: "19:00",
     endTime: "20:00",
   },
   {
-    title: "グループ作業",
-    date: "2026-06-24",
+    title: "グループ発表練習",
+    date: "2026-08-04",
     startTime: "13:00",
-    endTime: "15:00",
+    endTime: "14:30",
   },
   {
-    title: "資料確認",
-    date: "2026-06-25",
-    startTime: "10:30",
-    endTime: "11:30",
+    title: "授業資料の確認",
+    date: "2026-08-06",
+    startTime: "16:20",
+    endTime: "17:00",
   },
 ];
