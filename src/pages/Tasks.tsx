@@ -18,6 +18,7 @@
  * 2026年7月2日  Issue #27 タスク追加・編集時の入力チェックを追加
  * 2026年7月2日  Issue #42 自動優先度表示を改善
  * 2026年7月8日  Issue #28 タスク操作をid基準に変更
+ * 2026年7月8日  Issue #43 入力エラーメッセージの文言を統一
  */
 
 import { useState } from "react";
@@ -41,6 +42,14 @@ const priorityOrder: Record<AutoPriorityLevel, number> = {
   高: 0,
   中: 1,
   低: 2,
+};
+
+const taskErrorMessages = {
+  nameRequired: "タスク名を入力してください",
+  deadlineRequired: "締切日を入力してください",
+  estimatedMinutesRequired: "見積時間を入力してください",
+  estimatedMinutesMin: "見積時間は1分以上にしてください",
+  importanceRequired: "重要度を選択してください",
 };
 
 function compareDeadline(firstDeadline: string, secondDeadline: string) {
@@ -115,27 +124,27 @@ function Tasks() {
 
     // 入力不足や不自然な値のまま保存すると一覧で意味が分からなくなるため、項目ごとに確認する。
     if (trimmedName === "") {
-      setErrorMessage("タスク名を入力してください");
+      setErrorMessage(taskErrorMessages.nameRequired);
       return;
     }
 
     if (deadline === "") {
-      setErrorMessage("締切日を入力してください");
+      setErrorMessage(taskErrorMessages.deadlineRequired);
       return;
     }
 
     if (estimatedMinutes === "") {
-      setErrorMessage("見積時間を入力してください");
+      setErrorMessage(taskErrorMessages.estimatedMinutesRequired);
       return;
     }
 
     if (estimatedMinutesValue <= 0) {
-      setErrorMessage("見積時間は1分以上にしてください");
+      setErrorMessage(taskErrorMessages.estimatedMinutesMin);
       return;
     }
 
     if (importance === "") {
-      setErrorMessage("重要度を選択してください");
+      setErrorMessage(taskErrorMessages.importanceRequired);
       return;
     }
 
