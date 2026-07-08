@@ -14,6 +14,7 @@
  * 2026年6月23日  自動優先度判定で使う診断結果の共有に対応
  * 2026年6月26日  コード規約に沿ったコメントを追加
  * 2026年6月26日  ソースコードヘッダを追加
+ * 2026年7月7日  Issue #32 アプリ保存データを初期状態に戻す処理を追加
  */
 
 import {
@@ -188,6 +189,16 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
     setDiagnosisResult(null);
   };
 
+  const resetAppData = () => {
+    // 保存済みlocalStorageを消してからStateを初期データへ戻し、画面表示もすぐ更新する。
+    localStorage.removeItem(TASKS_STORAGE_KEY);
+    localStorage.removeItem(SCHEDULES_STORAGE_KEY);
+    localStorage.removeItem(DIAGNOSIS_STORAGE_KEY);
+    setTasks(sampleTasks.map((task) => ({ ...task })));
+    setSchedules(sampleSchedules.map((schedule) => ({ ...schedule })));
+    setDiagnosisResult(null);
+  };
+
   return (
     <AppDataContext.Provider
       value={{
@@ -203,6 +214,7 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
         deleteSchedule,
         saveDiagnosisResult,
         resetDiagnosisResult,
+        resetAppData,
       }}
     >
       {children}

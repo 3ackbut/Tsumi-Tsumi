@@ -14,6 +14,7 @@
  * 2026年6月23日  つみ度表示と行動コメントを追加
  * 2026年6月26日  今日の日付表示を追加
  * 2026年6月26日  ソースコードヘッダを追加
+ * 2026年7月7日  Issue #32 保存データを初期状態へ戻すリセットボタンを追加
  */
 
 import "../App.css";
@@ -36,7 +37,7 @@ function formatJapaneseDate(date: Date) {
 }
 
 function Home() {
-  const { tasks, schedules, diagnosisResult } = useAppData();
+  const { tasks, schedules, diagnosisResult, resetAppData } = useAppData();
   const todayDate = new Date();
   const today = formatDate(todayDate);
   const todayTasks = tasks.filter((task) => task.deadline === today);
@@ -47,6 +48,19 @@ function Home() {
   const completedTasks = tasks.filter((task) => task.completed);
   const tsumiScore = calculateTsumiScore(tasks, diagnosisResult);
   const homeAdvice = getHomeAdvice(diagnosisResult, tsumiScore.score);
+
+  const handleResetAppData = () => {
+    // 危険操作なので、OKされた場合だけ保存データと画面表示を初期状態に戻す。
+    const shouldReset = window.confirm(
+      "保存されているタスク・予定・診断結果を初期状態に戻します。よろしいですか？",
+    );
+
+    if (!shouldReset) {
+      return;
+    }
+
+    resetAppData();
+  };
 
   return (
     <main className="page">
@@ -172,6 +186,19 @@ function Home() {
             </p>
           </Link>
         </div>
+      </section>
+
+      <section className="panel reset-data-panel">
+        <div>
+          <p className="eyebrow">Reset</p>
+          <h2>保存データのリセット</h2>
+          <p>
+            発表練習や開発中の入力を消して、タスク・予定・診断結果を初期状態に戻します。
+          </p>
+        </div>
+        <button className="danger-button" type="button" onClick={handleResetAppData}>
+          データをリセット
+        </button>
       </section>
     </main>
   );
