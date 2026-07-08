@@ -223,7 +223,7 @@ function Calendar() {
           <p className="eyebrow">Calendar</p>
           <h1>カレンダー</h1>
           <p className="lead">
-            日付ごとに予定と締切タスクを並べた、提出向けの簡易カレンダーです。
+            日付ごとに予定と締切タスクを確認できます。
           </p>
         </div>
         <Link className="text-link" to="/">
