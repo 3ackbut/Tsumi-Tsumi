@@ -19,6 +19,7 @@
  * 2026年7月2日  Issue #47 予定編集時に編集フォームへ移動する処理を追加
  * 2026年7月2日  Issue #38 予定追加・編集時の入力チェックを追加
  * 2026年7月8日  Issue #30 週間カレンダーの見た目を調整
+ * 2026年7月8日  Issue #43 入力エラーメッセージの文言を統一
  */
 
 import { useRef, useState } from "react";
@@ -28,6 +29,14 @@ import type { Schedule } from "../types/schedule";
 import { calculateTsumiScore } from "../utils/tsumiScore";
 
 const dayLabels = ["日", "月", "火", "水", "木", "金", "土"];
+
+const scheduleErrorMessages = {
+  titleRequired: "予定名を入力してください",
+  dateRequired: "日付を入力してください",
+  startTimeRequired: "開始時刻を入力してください",
+  endTimeRequired: "終了時刻を入力してください",
+  endTimeAfterStartTime: "終了時刻は開始時刻より後にしてください",
+};
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("sv-SE");
@@ -141,27 +150,27 @@ function Calendar() {
     const trimmedTitle = title.trim();
 
     if (trimmedTitle === "") {
-      setErrorMessage("予定名を入力してください");
+      setErrorMessage(scheduleErrorMessages.titleRequired);
       return;
     }
 
     if (date === "") {
-      setErrorMessage("日付を入力してください");
+      setErrorMessage(scheduleErrorMessages.dateRequired);
       return;
     }
 
     if (startTime === "") {
-      setErrorMessage("開始時刻を入力してください");
+      setErrorMessage(scheduleErrorMessages.startTimeRequired);
       return;
     }
 
     if (endTime === "") {
-      setErrorMessage("終了時刻を入力してください");
+      setErrorMessage(scheduleErrorMessages.endTimeRequired);
       return;
     }
 
     if (startTime >= endTime) {
-      setErrorMessage("終了時刻は開始時刻より後にしてください");
+      setErrorMessage(scheduleErrorMessages.endTimeAfterStartTime);
       return;
     }
 
