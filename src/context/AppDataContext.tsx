@@ -2,7 +2,7 @@
  * ファイル名: AppDataContext.tsx
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月23日
- * 最終更新日: 2026年6月26日
+ * 最終更新日: 2026年7月8日
  *
  * 概要:
  * タスク、予定、診断結果をContextで管理するProviderを定義する。
@@ -15,6 +15,7 @@
  * 2026年6月26日  コード規約に沿ったコメントを追加
  * 2026年6月26日  ソースコードヘッダを追加
  * 2026年7月7日  Issue #32 アプリ保存データを初期状態に戻す処理を追加
+ * 2026年7月8日  Issue #28 タスクidの補完とid基準の操作処理へ変更
  */
 
 import {
@@ -27,6 +28,7 @@ import { AppDataContext } from "./DataContext";
 import type { DiagnosisResult } from "../types/diagnosis";
 import type { Schedule } from "../types/schedule";
 import type { Task } from "../types/task";
+import { createTaskId } from "../utils/taskId";
 
 const TASKS_STORAGE_KEY = "tsumi-tsumi-tasks";
 const SCHEDULES_STORAGE_KEY = "tsumi-tsumi-schedules";
@@ -49,16 +51,22 @@ function loadStoredData<T>(key: string, fallback: T[]): T[] {
   }
 }
 
-type StoredTask = Task & {
+type StoredTask = Omit<Task, "id"> &
+  Partial<Pick<Task, "id">> & {
   priority?: number;
 };
 
-// StoredTaskは古い保存形式も受け入れるための型。priorityは過去の「優先度」入力名。
+// StoredTaskは古い保存形式も受け入れるための型。idなしやpriority形式も現在のTask型へそろえる。
 function normalizeTask(task: StoredTask): Task {
   // 以前のpriority形式で保存されたタスクも、現在のimportance形式として読み込めるようにする。
   const importance = task.importance ?? task.priority ?? 3;
+  const id =
+    task.id?.trim() === "" || task.id === undefined
+      ? createTaskId()
+      : task.id;
 
   return {
+    id,
     name: task.name,
     deadline: task.deadline,
     estimatedMinutes: task.estimatedMinutes,
@@ -133,27 +141,27 @@ export function AppDataProvider({ children }: AppDataProviderProps) {
     setTasks((currentTasks) => [...currentTasks, task]);
   };
 
-  const updateTask = (index: number, task: Task) => {
-    // mapで対象indexだけ差し替え、他のタスクはそのまま残す。
+  const updateTask = (id: string, task: Task) => {
+    // mapで対象idだけ差し替え、並び替え後の表示から操作しても別タスクを変更しないようにする。
     setTasks((currentTasks) =>
-      currentTasks.map((currentTask, currentIndex) =>
-        currentIndex === index ? task : currentTask,
+      currentTasks.map((currentTask) =>
+        currentTask.id === id ? task : currentTask,
       ),
     );
   };
 
-  const deleteTask = (index: number) => {
-    // filterで削除対象以外を残す。配列を新しく作るため画面も更新される。
+  const deleteTask = (id: string) => {
+    // filterで削除対象id以外を残す。配列を新しく作るため画面も更新される。
     setTasks((currentTasks) =>
-      currentTasks.filter((_, currentIndex) => currentIndex !== index),
+      currentTasks.filter((currentTask) => currentTask.id !== id),
     );
   };
 
-  const toggleTaskCompleted = (index: number) => {
+  const toggleTaskCompleted = (id: string) => {
     // 完了状態だけを反転し、タスク名や締切など他の情報はスプレッド構文で引き継ぐ。
     setTasks((currentTasks) =>
-      currentTasks.map((task, currentIndex) =>
-        currentIndex === index
+      currentTasks.map((task) =>
+        task.id === id
           ? { ...task, completed: !task.completed }
           : task,
       ),

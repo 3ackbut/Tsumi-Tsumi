@@ -14,6 +14,7 @@
  * 2026年6月26日  ソースコードヘッダを追加
  * 2026年7月8日   Issue #33 提出・発表用に初期サンプルデータを整理
  * 2026年7月8日   Issue #33 発表時期に合わせてサンプル日付を2026年8月へ変更
+ * 2026年7月8日   Issue #28 サンプルタスクに一意のidを追加
  */
 
 import type { Schedule } from "../types/schedule";
@@ -21,6 +22,7 @@ import type { Task } from "../types/task";
 
 export const sampleTasks: Task[] = [
   {
+    id: "sample-task-report-20260801",
     name: "情報システム論レポート提出",
     deadline: "2026-08-01",
     estimatedMinutes: 150,
@@ -28,6 +30,7 @@ export const sampleTasks: Task[] = [
     completed: false,
   },
   {
+    id: "sample-task-presentation-20260803",
     name: "ゼミ発表スライドの最終確認",
     deadline: "2026-08-03",
     estimatedMinutes: 60,
@@ -35,6 +38,7 @@ export const sampleTasks: Task[] = [
     completed: false,
   },
   {
+    id: "sample-task-programming-20260805",
     name: "プログラミング課題のデバッグ",
     deadline: "2026-08-05",
     estimatedMinutes: 120,
@@ -42,6 +46,7 @@ export const sampleTasks: Task[] = [
     completed: false,
   },
   {
+    id: "sample-task-statistics-review-20260808",
     name: "統計学の復習ノート整理",
     deadline: "2026-08-08",
     estimatedMinutes: 45,
@@ -49,6 +54,7 @@ export const sampleTasks: Task[] = [
     completed: false,
   },
   {
+    id: "sample-task-references-20260815",
     name: "参考文献リスト作成",
     deadline: "2026-08-15",
     estimatedMinutes: 30,
@@ -56,6 +62,7 @@ export const sampleTasks: Task[] = [
     completed: false,
   },
   {
+    id: "sample-task-english-review-20260812",
     name: "英語小テストの復習",
     deadline: "2026-08-12",
     estimatedMinutes: 30,

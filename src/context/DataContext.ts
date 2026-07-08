@@ -2,7 +2,7 @@
  * ファイル名: DataContext.ts
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月23日
- * 最終更新日: 2026年6月26日
+ * 最終更新日: 2026年7月8日
  *
  * 概要:
  * アプリ全体で共有するデータと操作関数の型を定義する。
@@ -13,6 +13,7 @@
  * 2026年6月23日  診断結果の共有項目を追加
  * 2026年6月26日  ソースコードヘッダを追加
  * 2026年7月7日  Issue #32 アプリ保存データのリセット関数を追加
+ * 2026年7月8日  Issue #28 タスク操作関数をid基準に変更
  */
 
 import { createContext } from "react";
@@ -25,9 +26,9 @@ export interface AppDataContextValue {
   schedules: Schedule[];
   diagnosisResult: DiagnosisResult | null;
   addTask: (task: Task) => void;
-  updateTask: (index: number, task: Task) => void;
-  deleteTask: (index: number) => void;
-  toggleTaskCompleted: (index: number) => void;
+  updateTask: (id: string, task: Task) => void;
+  deleteTask: (id: string) => void;
+  toggleTaskCompleted: (id: string) => void;
   addSchedule: (schedule: Schedule) => void;
   updateSchedule: (index: number, schedule: Schedule) => void;
   deleteSchedule: (index: number) => void;
