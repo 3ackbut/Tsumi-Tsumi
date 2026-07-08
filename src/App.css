@@ -915,38 +915,76 @@ input:focus {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 14px;
   margin-top: 18px;
+  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid #e4e8ef;
+  border-radius: 8px;
 }
 
 .week-range {
-  margin-right: auto;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
   color: #3c4350;
+}
+
+.week-range span {
+  color: #687182;
+  font-size: 12px;
   font-weight: 800;
 }
 
-.week-controls button {
+.week-range strong {
+  color: #151923;
+  line-height: 1.45;
+}
+
+.week-control-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.week-control-buttons button {
   min-height: 40px;
   padding: 0 14px;
   color: #2f3441;
   background: #e9edf3;
+  border: 1px solid #d8dee8;
   border-radius: 999px;
   cursor: pointer;
   font-weight: 800;
 }
 
+.week-control-buttons button:hover {
+  background: #eef7f0;
+  border-color: #c9dfcf;
+  color: #2f5f3c;
+}
+
 .weekly-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
   margin-top: 18px;
+  padding: 8px;
+  background: #eef2f6;
+  border: 1px solid #dfe5ee;
+  border-radius: 8px;
 }
 
 .week-day-card {
+  display: grid;
+  align-content: start;
   min-width: 0;
-  padding: 12px;
-  background: #f8fafc;
-  border: 1px solid #e4e8ef;
+  min-height: 280px;
+  padding: 0;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #dfe5ee;
   border-radius: 8px;
 }
 
@@ -958,11 +996,18 @@ input:focus {
 
 .week-day-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding-bottom: 10px;
+  min-height: 58px;
+  padding: 10px 12px;
+  background: #f8fafc;
   border-bottom: 1px solid #e4e8ef;
+}
+
+.today-week-card .week-day-header {
+  background: #fff1c7;
+  border-color: #e6b655;
 }
 
 .week-day-header div {
@@ -974,6 +1019,7 @@ input:focus {
 
 .week-day-header span {
   color: #54735f;
+  font-size: 13px;
   font-weight: 900;
 }
 
@@ -989,16 +1035,33 @@ input:focus {
 
 .week-day-header strong {
   color: #151923;
-  font-size: 18px;
+  font-size: 22px;
+  line-height: 1;
 }
 
 .week-day-section {
-  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid #f0f3f7;
+}
+
+.week-day-header + .week-day-section {
+  border-top: 0;
 }
 
 .week-day-section h3 {
-  margin-bottom: 8px;
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 24px;
+  margin-bottom: 0;
+  padding: 0 8px;
+  color: #3c4350;
+  background: #f1f4f8;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .week-item-list {
@@ -1011,38 +1074,69 @@ input:focus {
 
 .week-item {
   display: grid;
-  gap: 4px;
-  padding: 9px;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px;
   border-radius: 8px;
 }
 
-.week-item span {
+.week-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.week-item-meta span {
   font-size: 12px;
   font-weight: 800;
+}
+
+.week-item-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
 }
 
 .week-item strong {
   color: #151923;
   font-size: 14px;
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .schedule-item {
   background: #eef7f0;
   border: 1px solid #c9dfcf;
+  border-left: 4px solid #4e8b5f;
 }
 
-.schedule-item span {
+.schedule-item .week-item-meta span {
   color: #3d6348;
+}
+
+.schedule-item .week-item-label {
+  color: #ffffff;
+  background: #4e8b5f;
 }
 
 .task-deadline-item {
   background: #fff7e6;
   border: 1px solid #eed8a8;
+  border-left: 4px solid #c9852d;
 }
 
-.task-deadline-item span {
+.task-deadline-item .week-item-meta span {
   color: #77510b;
+}
+
+.task-deadline-item .week-item-label {
+  color: #ffffff;
+  background: #c9852d;
 }
 
 .reason-list li {
@@ -1199,6 +1293,12 @@ input:focus {
     margin-right: 0;
   }
 
+  .week-control-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
   .stats-grid,
   .menu-grid,
   .form-grid,
@@ -1258,8 +1358,18 @@ input:focus {
     width: 100%;
   }
 
-  .week-controls button {
+  .week-control-buttons button {
     min-height: 42px;
+    padding: 0 8px;
+    white-space: normal;
+  }
+
+  .week-day-card {
+    min-height: 0;
+  }
+
+  .week-day-header {
+    min-height: 50px;
   }
 
   .tab-list {

@@ -2,7 +2,7 @@
  * ファイル名: Calendar.tsx
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月15日
- * 最終更新日: 2026年7月2日
+ * 最終更新日: 2026年7月8日
  *
  * 概要:
  * 予定の追加・編集・削除と、週間カレンダー表示を行う画面。
@@ -18,6 +18,7 @@
  * 2026年6月30日  Issue #48 予定削除前の確認メッセージを追加
  * 2026年7月2日  Issue #47 予定編集時に編集フォームへ移動する処理を追加
  * 2026年7月2日  Issue #38 予定追加・編集時の入力チェックを追加
+ * 2026年7月8日  Issue #30 週間カレンダーの見た目を調整
  */
 
 import { useRef, useState } from "react";
@@ -337,19 +338,24 @@ function Calendar() {
         </div>
 
         <div className="week-controls">
-          <span className="week-range">
-            表示中: {formatJapaneseDate(weekStartDate)}〜
-            {formatJapaneseDate(weekEndDate)}
-          </span>
-          <button type="button" onClick={() => moveWeek(-1)}>
-            前の週
-          </button>
-          <button type="button" onClick={moveToThisWeek}>
-            今週
-          </button>
-          <button type="button" onClick={() => moveWeek(1)}>
-            次の週
-          </button>
+          <div className="week-range">
+            <span>表示中の週</span>
+            <strong>
+              {formatJapaneseDate(weekStartDate)}〜
+              {formatJapaneseDate(weekEndDate)}
+            </strong>
+          </div>
+          <div className="week-control-buttons">
+            <button type="button" onClick={() => moveWeek(-1)}>
+              前の週
+            </button>
+            <button type="button" onClick={moveToThisWeek}>
+              今週
+            </button>
+            <button type="button" onClick={() => moveWeek(1)}>
+              次の週
+            </button>
+          </div>
         </div>
 
         <div className="weekly-grid">
@@ -384,9 +390,12 @@ function Calendar() {
                     <ul className="week-item-list">
                       {daySchedules.map(({ schedule, index }) => (
                         <li className="week-item schedule-item" key={`${schedule.title}-${index}`}>
-                          <span>
-                            {schedule.startTime}-{schedule.endTime}
-                          </span>
+                          <div className="week-item-meta">
+                            <span className="week-item-label">予定</span>
+                            <span>
+                              {schedule.startTime}-{schedule.endTime}
+                            </span>
+                          </div>
                           <strong>{schedule.title}</strong>
                           <div className="inline-actions">
                             <button
@@ -415,9 +424,12 @@ function Calendar() {
                     <p className="muted-text">なし</p>
                   ) : (
                     <ul className="week-item-list">
-                      {dayTasks.map((task, index) => (
-                        <li className="week-item task-deadline-item" key={`${task.name}-${index}`}>
-                          <span>{task.completed ? "完了" : "未完了"}</span>
+                      {dayTasks.map((task) => (
+                        <li className="week-item task-deadline-item" key={task.id}>
+                          <div className="week-item-meta">
+                            <span className="week-item-label">締切</span>
+                            <span>{task.completed ? "完了" : "未完了"}</span>
+                          </div>
                           <strong>{task.name}</strong>
                         </li>
                       ))}
