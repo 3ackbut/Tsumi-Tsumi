@@ -2,7 +2,7 @@
  * ファイル名: task.ts
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月15日
- * 最終更新日: 2026年6月26日
+ * 最終更新日: 2026年7月8日
  *
  * 概要:
  * タスク情報を表すTypeScriptの型を定義する。
@@ -12,9 +12,11 @@
  * 2026年6月15日  タスク情報の型定義を作成
  * 2026年6月23日  priorityをimportanceへ変更し自動優先度判定に対応
  * 2026年6月26日  ソースコードヘッダを追加
+ * 2026年7月8日   Issue #28 タスクをidで識別できるようid項目を追加
  */
 
 export interface Task {
+  id: string;
   name: string;
   deadline: string;
   estimatedMinutes: number;

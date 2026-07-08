@@ -2,7 +2,7 @@
  * ファイル名: Tasks.tsx
  * 作成者: やわらか背骨チャンネル
  * 初版作成日: 2026年6月15日
- * 最終更新日: 2026年7月2日
+ * 最終更新日: 2026年7月8日
  *
  * 概要:
  * タスクの追加、編集、削除、完了状態の切り替えを行う画面。
@@ -17,6 +17,7 @@
  * 2026年6月26日  ソースコードヘッダを追加
  * 2026年7月2日  Issue #27 タスク追加・編集時の入力チェックを追加
  * 2026年7月2日  Issue #42 自動優先度表示を改善
+ * 2026年7月8日  Issue #28 タスク操作をid基準に変更
  */
 
 import { useState } from "react";
@@ -27,13 +28,12 @@ import {
   judgeAutoPriority,
   type AutoPriorityLevel,
 } from "../utils/taskPriority";
+import { createTaskId } from "../utils/taskId";
 
 type TaskTab = "incomplete" | "completed";
 
-// 表示用のタスクには元の配列indexも持たせる。並び替え後でも正しいタスクを操作するため。
 interface DisplayTask {
   task: Task;
-  index: number;
   autoPriority: ReturnType<typeof judgeAutoPriority>;
 }
 
@@ -65,17 +65,16 @@ function Tasks() {
   const [estimatedMinutes, setEstimatedMinutes] = useState("30");
   const [importance, setImportance] = useState("3");
   const [errorMessage, setErrorMessage] = useState("");
-  // nullなら追加中、数値ならそのindexのタスクを編集中としてフォームの動きを切り替える。
-  const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
+  // nullなら追加中、文字列ならそのidのタスクを編集中としてフォームの動きを切り替える。
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   // タブの選択状態も画面の状態なのでuseStateで持つ。初期表示は未完了タスクにする。
   const [activeTab, setActiveTab] = useState<TaskTab>("incomplete");
   const incompleteTaskCount = tasks.filter((task) => !task.completed).length;
   const completedTaskCount = tasks.length - incompleteTaskCount;
   // mapで自動優先度を足し、filterでタブに合うタスクだけに絞り、sortで表示順を整える。
   const displayTasks: DisplayTask[] = tasks
-    .map((task, index) => ({
+    .map((task) => ({
       task,
-      index,
       autoPriority: judgeAutoPriority(task, diagnosisResult),
     }))
     .filter(({ task }) =>
@@ -106,7 +105,7 @@ function Tasks() {
     setEstimatedMinutes("30");
     setImportance("3");
     setErrorMessage("");
-    setEditingTaskIndex(null);
+    setEditingTaskId(null);
   };
 
   const saveTask = () => {
@@ -140,40 +139,43 @@ function Tasks() {
       return;
     }
 
+    const editingTask =
+      editingTaskId === null
+        ? undefined
+        : tasks.find((currentTask) => currentTask.id === editingTaskId);
     const task: Task = {
+      id: editingTask?.id ?? createTaskId(),
       name: trimmedName,
       deadline,
       estimatedMinutes: estimatedMinutesValue,
       importance: importanceValue,
       // 編集時は完了状態を引き継ぎ、内容を直しただけで未完了に戻らないようにする。
-      completed:
-        editingTaskIndex === null ? false : tasks[editingTaskIndex].completed,
+      completed: editingTask?.completed ?? false,
     };
 
-    // editingTaskIndexがnullなら追加、数値なら既存タスクの更新として扱う。
-    if (editingTaskIndex === null) {
+    // editingTaskIdがnullなら追加、文字列なら既存タスクの更新として扱う。
+    if (editingTaskId === null) {
       addTask(task);
     } else {
-      updateTask(editingTaskIndex, task);
+      updateTask(editingTaskId, task);
     }
 
     resetForm();
   };
 
-  const startEditTask = (index: number) => {
+  const startEditTask = (task: Task) => {
     // 編集ボタンを押したタスクの値をフォームに戻し、同じ入力欄で修正できるようにする。
-    const task = tasks[index];
     setName(task.name);
     setDeadline(task.deadline);
     setEstimatedMinutes(String(task.estimatedMinutes));
     setImportance(String(task.importance));
-    setEditingTaskIndex(index);
+    setEditingTaskId(task.id);
     setErrorMessage("");
   };
 
-  const handleDeleteTask = (index: number) => {
+  const handleDeleteTask = (id: string) => {
     // 編集中のタスクを削除した場合でもフォームに古い値が残らないようリセットする。
-    deleteTask(index);
+    deleteTask(id);
     resetForm();
   };
 
@@ -196,7 +198,7 @@ function Tasks() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Add</p>
-            <h2>{editingTaskIndex === null ? "タスク追加" : "タスク編集"}</h2>
+            <h2>{editingTaskId === null ? "タスク追加" : "タスク編集"}</h2>
           </div>
         </div>
 
@@ -246,9 +248,9 @@ function Tasks() {
 
         <div className="form-actions">
           <button className="primary-button" type="button" onClick={saveTask}>
-            {editingTaskIndex === null ? "タスク追加" : "変更を保存"}
+            {editingTaskId === null ? "タスク追加" : "変更を保存"}
           </button>
-          {editingTaskIndex !== null && (
+          {editingTaskId !== null && (
             <button className="secondary-button" type="button" onClick={resetForm}>
               キャンセル
             </button>
@@ -312,19 +314,19 @@ function Tasks() {
           </div>
         ) : (
           <ul className="task-list">
-            {displayTasks.map(({ task, index, autoPriority }) => {
+            {displayTasks.map(({ task, autoPriority }) => {
               return (
                 <li
                   className={
                     task.completed ? "task-item is-completed" : "task-item"
                   }
-                  key={`${task.name}-${task.deadline}-${index}`}
+                  key={task.id}
                 >
                   <div className="task-main">
                     <button
                       className="check-button"
                       type="button"
-                      onClick={() => toggleTaskCompleted(index)}
+                      onClick={() => toggleTaskCompleted(task.id)}
                       aria-label={`${task.name}の完了状態を切り替える`}
                     >
                       {task.completed ? "✓" : ""}
@@ -353,17 +355,17 @@ function Tasks() {
                   <div className="task-actions">
                     <button
                       type="button"
-                      onClick={() => toggleTaskCompleted(index)}
+                      onClick={() => toggleTaskCompleted(task.id)}
                     >
                       {task.completed ? "未完了に戻す" : "完了にする"}
                     </button>
-                    <button type="button" onClick={() => startEditTask(index)}>
+                    <button type="button" onClick={() => startEditTask(task)}>
                       編集
                     </button>
                     <button
                       className="danger-button"
                       type="button"
-                      onClick={() => handleDeleteTask(index)}
+                      onClick={() => handleDeleteTask(task.id)}
                     >
                       削除
                     </button>
